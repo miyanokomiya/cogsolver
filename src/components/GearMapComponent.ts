@@ -6,8 +6,6 @@ export class GearMapComponent {
   freeGears: GearModel[] = [];
   availableGears: GearModel[] = [];
 
-  constructor(private scene: Phaser.Scene) {}
-
   setInitialGears(gears: GearModel[]) {
     this.initialGears = gears.concat();
   }

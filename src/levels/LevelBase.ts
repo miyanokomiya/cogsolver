@@ -3,6 +3,7 @@ import { InputComponent } from "../components/InputComponent";
 import { VirtualKeyboardComponent } from "../components/VirtualKeyboardComponent";
 import { Gear } from "../pawns/Gear";
 import { createGearModel, GearModel, getAdjacentGearMap, getAdjacentGearMapFor } from "../utils/gears";
+import { AvailableGearMarker } from "../widgets/AvailableGearMarker";
 import { GearPool } from "../widgets/GearPool";
 
 export class LevelBase extends Phaser.Events.EventEmitter {
@@ -22,7 +23,7 @@ export class LevelBase extends Phaser.Events.EventEmitter {
   create() {
     this.inputComponent = new InputComponent(this.scene);
     this.vkc = new VirtualKeyboardComponent(this.scene, this.inputComponent);
-    this.gearMapComponent = new GearMapComponent(this.scene);
+    this.gearMapComponent = new GearMapComponent();
     this.gearGroup = this.scene.add.group();
     this.availableGearInfoGroup = this.scene.add.group();
 
@@ -35,7 +36,7 @@ export class LevelBase extends Phaser.Events.EventEmitter {
     ]);
 
     this.gearPool = new GearPool(this.scene, this.gearMapComponent);
-    this.gearPool.setPosition(this.scene.scale.width - 300, this.scene.scale.height - 150);
+    this.gearPool.setPosition(this.scene.scale.width - 250, this.scene.scale.height - 120);
     this.gearPool.on("gear-select", (model: GearModel) => {
       this.setNextGearModel(model);
     });
@@ -75,10 +76,14 @@ export class LevelBase extends Phaser.Events.EventEmitter {
   }
 
   private animateGears() {
+    const rate = this.rotationTimestamp / 5000;
     this.gearGroup.getChildren().forEach((gear) => {
       if (!(gear instanceof Gear)) return;
-      const rate = this.rotationTimestamp / 5000;
       gear.setGearAngleRelative(rate);
+    });
+    this.availableGearInfoGroup.getChildren().forEach((marker) => {
+      if (!(marker instanceof AvailableGearMarker)) return;
+      marker.setGearAngleRelative(rate);
     });
   }
 
@@ -148,10 +153,9 @@ export class LevelBase extends Phaser.Events.EventEmitter {
     const nextGearModel = this.nextGearModel;
     const availableInfos = this.gearMapComponent.getAvailableGearInfos(nextGearModel.radius);
     availableInfos.forEach((info) => {
-      const circle = this.scene.add.circle(info.x, info.y, 8, 0xff0000, 1);
-      this.availableGearInfoGroup.add(circle);
-      circle.setInteractive();
-      circle.on("pointerdown", () => {
+      const marker = new AvailableGearMarker(this.scene, { ...nextGearModel, ...info });
+      this.availableGearInfoGroup.add(marker);
+      marker.on("pointerdown", () => {
         this.addFreeGear({ ...nextGearModel, ...info });
       });
     });

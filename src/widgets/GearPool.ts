@@ -26,7 +26,7 @@ export class GearPool extends Phaser.GameObjects.Container {
       .sort((a, b) => (a[0] < b[0] ? -1 : 1))
       .map(([, gears]) => {
         const gear = new GearPoolItem(this.scene, gears[0], gears.length);
-        x += gear.width / 2;
+        x += 60;
         gear.setPosition(x, gear.height / 2);
         gear.setInteractive();
         gear.on("pointerup", () => {
@@ -76,8 +76,13 @@ class GearPoolItem extends Phaser.GameObjects.Container {
     });
     this.label.setOrigin(0.5, 1);
 
-    this.add([this.gear, this.label]);
-    this.setSize(this.gear.width, this.gear.height + this.label.height + 4);
+    const background = this.scene.add
+      .graphics()
+      .fillStyle(0x666666, 0.3)
+      .fillRoundedRect(-this.gear.width / 2, -this.gear.height / 2, this.gear.width, this.gear.height, 8);
+
+    this.add([background, this.gear, this.label]);
+    this.setSize(this.gear.width, this.gear.height);
   }
 
   setSelected(selected: boolean) {
