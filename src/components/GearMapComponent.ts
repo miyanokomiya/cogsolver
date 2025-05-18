@@ -1,4 +1,4 @@
-import { GearCircle, GearModel, getAvailableGearPositionForRadius } from "../utils/gears";
+import { GearCircle, GearModel, getAdjacentGearMapFor, getAvailableGearPositionForRadius } from "../utils/gears";
 
 export class GearMapComponent {
   initialGears: GearModel[] = [];
@@ -19,8 +19,11 @@ export class GearMapComponent {
   }
 
   getAvailableGearInfos(radius: number): GearCircle[] {
-    const allGears = this.initialGears.concat(this.freeGears);
-    return getAvailableGearPositionForRadius(allGears, radius, this.goalGears);
+    const connectedGoals = this.getConnectedGoals();
+    const connectedGoalSet = new Set(connectedGoals);
+    const obstacles = this.goalGears.filter((goalGear) => !connectedGoalSet.has(goalGear));
+    const allGears = this.initialGears.concat(this.freeGears).concat(connectedGoals);
+    return getAvailableGearPositionForRadius(allGears, radius, obstacles);
   }
 
   addFreeGear(gear: GearModel) {
@@ -37,5 +40,11 @@ export class GearMapComponent {
 
   removeAvailableGear(id: string) {
     this.availableGears = this.availableGears.filter((g) => g.id !== id);
+  }
+
+  getConnectedGoals() {
+    return this.goalGears.filter((goalGear) => {
+      return getAdjacentGearMapFor(this.freeGears, goalGear).length > 0;
+    });
   }
 }

@@ -2,7 +2,7 @@ import { GearMapComponent } from "../components/GearMapComponent";
 import { InputComponent } from "../components/InputComponent";
 import { VirtualKeyboardComponent } from "../components/VirtualKeyboardComponent";
 import { Gear } from "../pawns/Gear";
-import { createGearModel, GearModel, getAdjacentGearMap, getAdjacentGearMapFor } from "../utils/gears";
+import { createGearModel, GearModel, getAdjacentGearMap } from "../utils/gears";
 import { AvailableGearMarker } from "../widgets/AvailableGearMarker";
 import { GearPool } from "../widgets/GearPool";
 
@@ -11,13 +11,23 @@ export class LevelBase extends Phaser.Events.EventEmitter {
   private vkc!: VirtualKeyboardComponent;
   private gearGroup!: Phaser.GameObjects.Group;
   private availableGearInfoGroup!: Phaser.GameObjects.Group;
-  private gearMapComponent!: GearMapComponent;
+  protected gearMapComponent!: GearMapComponent;
   private gearPool!: GearPool;
   private nextGearModel: GearModel | undefined;
   private rotationTimestamp = 0;
 
   constructor(protected scene: Phaser.Scene) {
     super();
+  }
+
+  protected setupLevel() {
+    this.gearMapComponent.setInitialGears([createGearModel("p-2", "goal-1", 100, 500, 1)]);
+    this.gearMapComponent.setGoalGears([createGearModel("p-2", "init-1", 496.5462479183373, 103.45375208166261, 1)]);
+    this.gearMapComponent.setAvailableGears([
+      ...Array.from({ length: 5 }, () => createGearModel("p-2", Phaser.Utils.String.UUID(), 0, 0)),
+      ...Array.from({ length: 5 }, () => createGearModel("p-3", Phaser.Utils.String.UUID(), 0, 0)),
+      ...Array.from({ length: 5 }, () => createGearModel("p-4", Phaser.Utils.String.UUID(), 0, 0)),
+    ]);
   }
 
   create() {
@@ -27,13 +37,7 @@ export class LevelBase extends Phaser.Events.EventEmitter {
     this.gearGroup = this.scene.add.group();
     this.availableGearInfoGroup = this.scene.add.group();
 
-    this.gearMapComponent.setInitialGears([createGearModel("p-2", "goal-1", 100, 500, 1)]);
-    this.gearMapComponent.setGoalGears([createGearModel("p-2", "init-1", 496.5462479183373, 103.45375208166261, 1)]);
-    this.gearMapComponent.setAvailableGears([
-      ...Array.from({ length: 5 }, () => createGearModel("p-2", Phaser.Utils.String.UUID(), 0, 0)),
-      ...Array.from({ length: 5 }, () => createGearModel("p-3", Phaser.Utils.String.UUID(), 0, 0)),
-      ...Array.from({ length: 5 }, () => createGearModel("p-4", Phaser.Utils.String.UUID(), 0, 0)),
-    ]);
+    this.setupLevel();
 
     this.gearPool = new GearPool(this.scene, this.gearMapComponent);
     this.gearPool.setPosition(this.scene.scale.width - 250, this.scene.scale.height - 120);
@@ -67,10 +71,8 @@ export class LevelBase extends Phaser.Events.EventEmitter {
   }
 
   private checkGameOver() {
-    const connected = this.gearMapComponent.goalGears.every((goalGear) => {
-      return getAdjacentGearMapFor(this.gearMapComponent.freeGears, goalGear).length > 0;
-    });
-    if (connected) {
+    this.gearMapComponent.getConnectedGoals();
+    if (this.gearMapComponent.getConnectedGoals().length === this.gearMapComponent.goalGears.length) {
       this.emit("level-clear");
     }
   }
