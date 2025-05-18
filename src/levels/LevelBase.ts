@@ -13,6 +13,7 @@ export class LevelBase extends Phaser.Events.EventEmitter {
   private gearMapComponent!: GearMapComponent;
   private gearPool!: GearPool;
   private nextGearModel: GearModel | undefined;
+  private rotationTimestamp = 0;
 
   constructor(protected scene: Phaser.Scene) {
     super();
@@ -25,8 +26,8 @@ export class LevelBase extends Phaser.Events.EventEmitter {
     this.gearGroup = this.scene.add.group();
     this.availableGearInfoGroup = this.scene.add.group();
 
-    this.gearMapComponent.setInitialGears([createGearModel("p-2", "init-1", 100, 50)]);
-    this.gearMapComponent.setGoalGears([createGearModel("p-2", "goal-1", 100, 500)]);
+    this.gearMapComponent.setInitialGears([createGearModel("p-2", "init-1", 100, 50, 1)]);
+    this.gearMapComponent.setGoalGears([createGearModel("p-2", "goal-1", 100, 500, -1)]);
     this.gearMapComponent.setAvailableGears([
       ...Array.from({ length: 5 }, () => createGearModel("p-2", Phaser.Utils.String.UUID(), 0, 0)),
       ...Array.from({ length: 5 }, () => createGearModel("p-3", Phaser.Utils.String.UUID(), 0, 0)),
@@ -43,7 +44,7 @@ export class LevelBase extends Phaser.Events.EventEmitter {
     this.updateAvailableGearInfos();
   }
 
-  update(_time: number, _delta: number): void {
+  update(_time: number, delta: number): void {
     this.inputComponent.update();
     this.vkc.update();
 
@@ -56,6 +57,17 @@ export class LevelBase extends Phaser.Events.EventEmitter {
     if (this.inputComponent.justPressedKeys.esc) {
       this.emit("level-pause");
     }
+
+    this.rotationTimestamp = (this.rotationTimestamp + delta) % 5000;
+    this.animateGears();
+  }
+
+  private animateGears() {
+    this.gearGroup.getChildren().forEach((gear) => {
+      if (!(gear instanceof Gear)) return;
+      const rate = this.rotationTimestamp / 5000;
+      gear.setGearAngleRelative(rate);
+    });
   }
 
   private updateGears() {
@@ -84,19 +96,19 @@ export class LevelBase extends Phaser.Events.EventEmitter {
     });
 
     initialGearMap.forEach((model) => {
-      const gear = new Gear(this.scene, model.type, model.tilt);
+      const gear = new Gear(this.scene, model.type, model.tilt, model.rotationDirection);
       gear.setPosition(model.x, model.y);
       gear.setGearColor(0xff4400);
       this.gearGroup.add(gear);
     });
     goalGearMap.forEach((model) => {
-      const gear = new Gear(this.scene, model.type, model.tilt);
+      const gear = new Gear(this.scene, model.type, model.tilt, model.rotationDirection);
       gear.setPosition(model.x, model.y);
       gear.setGearColor(0x00ff00);
       this.gearGroup.add(gear);
     });
     freeGearMap.forEach((model) => {
-      const gear = new Gear(this.scene, model.type, model.tilt);
+      const gear = new Gear(this.scene, model.type, model.tilt, model.rotationDirection);
       gear.setPosition(model.x, model.y);
       this.gearGroup.add(gear);
     });

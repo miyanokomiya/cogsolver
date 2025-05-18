@@ -2,7 +2,7 @@ export interface GearCircle {
   radius: number;
   x: number;
   y: number;
-  rotation: -1 | 0 | 1;
+  rotationDirection: -1 | 0 | 1;
   tilt: number;
 }
 
@@ -31,7 +31,7 @@ export function getAvailableGearPositionForRadius(gears: GearModel[], radius: nu
         x,
         y,
         radius,
-        rotation: getCounterRotation(gear),
+        rotationDirection: getCounterRotation(gear),
         tilt: gear.tilt + 1 / 2,
       });
     });
@@ -43,7 +43,7 @@ export function getAvailableGearPositionForRadius(gears: GearModel[], radius: nu
 }
 
 function getCounterRotation(gear: GearModel): -1 | 0 | 1 {
-  return -gear.rotation as any;
+  return -gear.rotationDirection as any;
 }
 
 function isGearOverlapping(gear: GearCircle, gears: GearCircle[]): boolean {
@@ -52,7 +52,7 @@ function isGearOverlapping(gear: GearCircle, gears: GearCircle[]): boolean {
     const radiusSum = g.radius + gear.radius;
     if (radiusSum <= distance) return false;
     if (distance < radiusSum - GEAR_INCUT_RADIUS) return true;
-    return g.rotation * gear.rotation > 0;
+    return g.rotationDirection * gear.rotationDirection > 0;
   });
 }
 
@@ -70,19 +70,26 @@ function omitCircleWithSamePoints(points: GearCircle[], epsilon = 1e-6): GearCir
   return result;
 }
 
-export function createGearModel(type: GearType, id: string, x: number, y: number): GearModel {
-  return { ...createCircleFromGearType(type, x, y), type, id };
+export function createGearModel(
+  type: GearType,
+  id: string,
+  x: number,
+  y: number,
+  rotation?: GearCircle["rotationDirection"],
+  tilt?: GearCircle["tilt"],
+): GearModel {
+  return { ...createCircleFromGearType(type, x, y), type, id, rotationDirection: rotation ?? 0, tilt: tilt ?? 0 };
 }
 
 export function createCircleFromGearType(type: GearType, x: number, y: number): GearCircle {
   switch (type) {
     case "p-2":
-      return { radius: 32, x, y, rotation: 0, tilt: 0 };
+      return { radius: 32, x, y, rotationDirection: 0, tilt: 0 };
     case "p-3":
-      return { radius: 64, x, y, rotation: 0, tilt: 0 };
+      return { radius: 64, x, y, rotationDirection: 0, tilt: 0 };
     case "p-4":
-      return { radius: 128, x, y, rotation: 0, tilt: 0 };
+      return { radius: 128, x, y, rotationDirection: 0, tilt: 0 };
     default:
-      return { radius: 24, x, y, rotation: 0, tilt: 0 };
+      return { radius: 24, x, y, rotationDirection: 0, tilt: 0 };
   }
 }
