@@ -1,2 +1,2 @@
-# Okada Bobble
+# Cogsolver
 https://miyanokomiya.github.io/cogsolver/

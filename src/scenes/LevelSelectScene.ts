@@ -38,7 +38,7 @@ export class LevelSelectScene extends Phaser.Scene {
 
     const lineX = 100;
 
-    this.add.text(lineX, 62, "Okada Bobble", {
+    this.add.text(lineX, 62, "Cogsolver", {
       fontSize: "70px",
       fontFamily: DEFAULT_FONT,
       color: "#000000",
