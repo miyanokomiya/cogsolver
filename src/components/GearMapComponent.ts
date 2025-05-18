@@ -1,4 +1,4 @@
-import { GearModel } from "../utils/gears";
+import { GearModel, getAvailableGearPositionForRadius } from "../utils/gears";
 
 export class GearMapComponent {
   initialGears: GearModel[] = [];
@@ -18,5 +18,18 @@ export class GearMapComponent {
 
   setAvailableGears(gears: GearModel[]) {
     this.availableGears = gears.concat();
+  }
+
+  getAvailableGearInfos(radius: number): { x: number; y: number }[] {
+    const allGears = this.initialGears.concat(this.goalGears).concat(this.freeGears);
+    return getAvailableGearPositionForRadius(allGears, radius);
+  }
+
+  addFreeGear(gear: GearModel) {
+    this.freeGears.push(gear);
+  }
+
+  removeFreeGear(id: string) {
+    this.freeGears = this.freeGears.filter((g) => g.id !== id);
   }
 }
