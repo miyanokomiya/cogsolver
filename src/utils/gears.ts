@@ -1,32 +1,39 @@
-interface Circle {
+export interface GearCircle {
   radius: number;
   x: number;
   y: number;
   rotation: -1 | 0 | 1;
+  tilt: number;
 }
 
-export interface GearModel extends Circle {
+export interface GearModel extends GearCircle {
   id: string;
   type: GearType;
 }
 
-export type GearType = "p-1" | "p-2" | "p-3" | "p-4" | "p-5" | "p-6" | "p-7" | "p-8";
+export type GearType = "p-1" | "p-2" | "p-3" | "p-4";
 
 const GEAR_ANGLE_UNIT = 45;
 
 const GEAR_INCUT_RADIUS = 6;
 
-export function getAvailableGearPositionForRadius(gears: GearModel[], radius: number): Circle[] {
+export function getAvailableGearPositionForRadius(gears: GearModel[], radius: number): GearCircle[] {
   const count = 360 / GEAR_ANGLE_UNIT;
   const radians = Array.from({ length: count }, (_, i) => Phaser.Math.DegToRad(GEAR_ANGLE_UNIT * i));
-  const ret: Circle[] = [];
+  const ret: GearCircle[] = [];
 
   gears.forEach((gear) => {
-    const distance = gear.radius + radius;
+    const distance = gear.radius + radius - GEAR_INCUT_RADIUS * 0.75;
     radians.forEach((r) => {
       const x = gear.x + Math.cos(r) * distance;
       const y = gear.y + Math.sin(r) * distance;
-      ret.push({ x, y, radius, rotation: getCounterRotation(gear) });
+      ret.push({
+        x,
+        y,
+        radius,
+        rotation: getCounterRotation(gear),
+        tilt: gear.tilt + 1 / 2,
+      });
     });
   });
 
@@ -39,7 +46,7 @@ function getCounterRotation(gear: GearModel): -1 | 0 | 1 {
   return -gear.rotation as any;
 }
 
-function isGearOverlapping(gear: Circle, gears: Circle[]): boolean {
+function isGearOverlapping(gear: GearCircle, gears: GearCircle[]): boolean {
   return gears.some((g) => {
     const distance = Phaser.Math.Distance.Between(g.x, g.y, gear.x, gear.y);
     const radiusSum = g.radius + gear.radius;
@@ -49,8 +56,8 @@ function isGearOverlapping(gear: Circle, gears: Circle[]): boolean {
   });
 }
 
-function omitCircleWithSamePoints(points: Circle[], epsilon = 1e-6): Circle[] {
-  const result: Circle[] = [];
+function omitCircleWithSamePoints(points: GearCircle[], epsilon = 1e-6): GearCircle[] {
+  const result: GearCircle[] = [];
   points.forEach((p) => {
     if (
       !result.some((q) => {
@@ -67,15 +74,15 @@ export function createGearModel(type: GearType, id: string, x: number, y: number
   return { ...createCircleFromGearType(type, x, y), type, id };
 }
 
-function createCircleFromGearType(type: GearType, x: number, y: number): Circle {
+export function createCircleFromGearType(type: GearType, x: number, y: number): GearCircle {
   switch (type) {
     case "p-2":
-      return { radius: 32, x, y, rotation: 0 };
+      return { radius: 32, x, y, rotation: 0, tilt: 0 };
     case "p-3":
-      return { radius: 64, x, y, rotation: 0 };
+      return { radius: 64, x, y, rotation: 0, tilt: 0 };
     case "p-4":
-      return { radius: 128, x, y, rotation: 0 };
+      return { radius: 128, x, y, rotation: 0, tilt: 0 };
     default:
-      return { radius: 24, x, y, rotation: 0 };
+      return { radius: 24, x, y, rotation: 0, tilt: 0 };
   }
 }

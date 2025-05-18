@@ -5,16 +5,18 @@ export class Gear extends Phaser.GameObjects.Container {
   private gearImage: Phaser.GameObjects.Image;
   private angleAnimation?: Phaser.Tweens.Tween;
 
-  constructor(scene: Phaser.Scene, gearType: GearType, angleShifted = false) {
+  constructor(scene: Phaser.Scene, gearType: GearType, tilt?: number) {
     super(scene, 0, 0);
     scene.add.existing(this);
 
     const gearInfo = getGearInfo(gearType);
-    this.shiftAngle = angleShifted ? 180 / gearInfo.teethCount : 0;
+    this.shiftAngle = tilt ? tilt * 360 / gearInfo.teethCount : 0;
 
     this.gearImage = this.scene.add.image(0, 0, gearInfo.texture);
     this.add(this.gearImage);
     this.setGearAngle(0);
+
+    this.setSize(this.gearImage.width, this.gearImage.height);
   }
 
   setGearAngle(angle: number) {
