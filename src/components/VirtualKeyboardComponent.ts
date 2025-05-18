@@ -23,39 +23,7 @@ export class VirtualKeyboardComponent {
 
   private createButtons() {
     const left = 50;
-    const bottom = 50;
     const buttonSize = 60;
-    const padding = 10;
-    const screenWidth = this.scene.scale.width;
-    const screenHeight = this.scene.scale.height;
-
-    // Arrow keys on the left-hand side
-    this.createButton(left, screenHeight - buttonSize - bottom, buttonSize, "←", "left");
-    this.createButton(
-      left + buttonSize + padding,
-      screenHeight - buttonSize * 2 - bottom - padding,
-      buttonSize,
-      "↑",
-      "up",
-    );
-    this.createButton(left + buttonSize + padding, screenHeight - buttonSize - bottom, buttonSize, "↓", "down");
-    this.createButton(
-      left + buttonSize * 2 + padding * 2,
-      screenHeight - buttonSize - bottom,
-      buttonSize,
-      "→",
-      "right",
-    );
-
-    // Action buttons on the right-hand side
-    const actionButtonSize = buttonSize * 1.5;
-    this.createButton(
-      screenWidth - (actionButtonSize + left) / 2,
-      screenHeight - buttonSize - bottom,
-      actionButtonSize,
-      "Space",
-      "space",
-    );
     this.createButton(left, buttonSize, buttonSize, "Esc", "esc");
   }
 

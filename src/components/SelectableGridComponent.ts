@@ -8,7 +8,7 @@ export class SelectableGridComponent<T extends SelectableObject = SelectableObje
   private itemGrid: T[][] = [];
   private focused: { x: number; y: number } = { x: 0, y: 0 };
 
-  constructor(private inputComponent: InputComponent) {
+  constructor(private inputComponent?: InputComponent) {
     super();
   }
 
@@ -28,19 +28,19 @@ export class SelectableGridComponent<T extends SelectableObject = SelectableObje
 
   update() {
     const focusedButton = this.getFocusedButton();
-    if (this.inputComponent.justPressedKeys.left) {
+    if (this.inputComponent?.justPressedKeys.left) {
       this.focusItem(Math.max(0, this.focused.x - 1), this.focused.y);
     }
-    if (this.inputComponent.justPressedKeys.right) {
+    if (this.inputComponent?.justPressedKeys.right) {
       this.focusItem(Math.min(this.itemGrid[this.focused.y].length - 1, this.focused.x + 1), this.focused.y);
     }
-    if (this.inputComponent.justPressedKeys.up) {
+    if (this.inputComponent?.justPressedKeys.up) {
       this.focusItem(this.focused.x, Math.max(0, this.focused.y - 1));
     }
-    if (this.inputComponent.justPressedKeys.down) {
+    if (this.inputComponent?.justPressedKeys.down) {
       this.focusItem(this.focused.x, Math.min(this.itemGrid.length - 1, this.focused.y + 1));
     }
-    if (this.inputComponent.justPressedKeys.space) {
+    if (this.inputComponent?.justPressedKeys.space) {
       const button = this.getFocusedButton();
       if (button) {
         this.emit("item-select", button);

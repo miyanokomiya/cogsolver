@@ -21,7 +21,7 @@ export class LevelSelectButton extends Phaser.GameObjects.Container implements S
     this.setFocused(false);
     this.add(background);
 
-    const levelText = scene.add.text(WIDTH / 2, HEIGHT / 2, `${(levelIndex + 1).toString().padStart(2, "0")}`, {
+    const levelText = scene.add.text(0, 0, `${(levelIndex + 1).toString().padStart(2, "0")}`, {
       fontSize: "20px",
       fontFamily: DEFAULT_FONT,
       color: "#ffffff",
@@ -30,7 +30,7 @@ export class LevelSelectButton extends Phaser.GameObjects.Container implements S
     this.add(levelText);
 
     if (checked) {
-      const checkMark = scene.add.text(WIDTH - 10, HEIGHT - 10, "✓", {
+      const checkMark = scene.add.text(WIDTH / 2 - 10, HEIGHT / 2 - 10, "✓", {
         fontSize: "20px",
         fontFamily: DEFAULT_FONT,
         color: "#ffffff",
@@ -40,13 +40,21 @@ export class LevelSelectButton extends Phaser.GameObjects.Container implements S
     }
 
     this.setSize(WIDTH, HEIGHT);
+
+    this.setInteractive();
+    this.on("pointermove", () => {
+      this.setFocused(true);
+    });
+    this.on("pointerout", () => {
+      this.setFocused(false);
+    });
   }
 
   setFocused(focused: boolean) {
     this.background.clear();
     this.background.fillStyle(0x0044ff);
     this.background.lineStyle(focused ? 4 : 2, focused ? 0xeeee00 : 0x000000);
-    this.background.fillRoundedRect(0, 0, WIDTH, HEIGHT, 10);
-    this.background.strokeRoundedRect(0, 0, WIDTH, HEIGHT, 10);
+    this.background.fillRoundedRect(-WIDTH / 2, -HEIGHT / 2, WIDTH, HEIGHT, 10);
+    this.background.strokeRoundedRect(-WIDTH / 2, -HEIGHT / 2, WIDTH, HEIGHT, 10);
   }
 }

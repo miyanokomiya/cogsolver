@@ -55,7 +55,9 @@ export class LevelBase extends Phaser.Events.EventEmitter {
     if (this.inputComponent.justPressedKeys.space) {
     }
     if (this.inputComponent.justPressedKeys.esc) {
-      console.log(JSON.parse(JSON.stringify(this.gearMapComponent.freeGears)));
+      if (import.meta.env.MODE === "development") {
+        console.log(JSON.parse(JSON.stringify(this.gearMapComponent.freeGears)));
+      }
       this.emit("level-pause");
     }
 

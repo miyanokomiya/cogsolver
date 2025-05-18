@@ -20,7 +20,7 @@ export class MenuButton extends Phaser.GameObjects.Container implements Selectab
     this.setFocused(false);
     this.add(background);
 
-    const label = scene.add.text(WIDTH / 2, HEIGHT / 2, text, {
+    const label = scene.add.text(0, 0, text, {
       fontSize: "20px",
       fontFamily: DEFAULT_FONT,
       color: this.getTextColor(),
@@ -29,14 +29,22 @@ export class MenuButton extends Phaser.GameObjects.Container implements Selectab
     this.add(label);
 
     this.setSize(WIDTH, HEIGHT);
+
+    this.setInteractive();
+    this.on("pointermove", () => {
+      this.setFocused(true);
+    });
+    this.on("pointerout", () => {
+      this.setFocused(false);
+    });
   }
 
   setFocused(focused: boolean) {
     this.background.clear();
     this.background.fillStyle(this.getFillColor());
     this.background.lineStyle(focused ? 4 : 2, focused ? 0xeeee00 : 0x000000);
-    this.background.fillRoundedRect(0, 0, WIDTH, HEIGHT, 10);
-    this.background.strokeRoundedRect(0, 0, WIDTH, HEIGHT, 10);
+    this.background.fillRoundedRect(-WIDTH / 2, -HEIGHT / 2, WIDTH, HEIGHT, 10);
+    this.background.strokeRoundedRect(-WIDTH / 2, -HEIGHT / 2, WIDTH, HEIGHT, 10);
   }
 
   getFillColor() {
