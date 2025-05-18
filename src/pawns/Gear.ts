@@ -1,9 +1,11 @@
+import { GearType } from "../utils/gears";
+
 export class Gear extends Phaser.GameObjects.Container {
   private shiftAngle = 0;
   private gearImage: Phaser.GameObjects.Image;
   private angleAnimation?: Phaser.Tweens.Tween;
 
-  constructor(scene: Phaser.Scene, gearType: number, angleShifted = false) {
+  constructor(scene: Phaser.Scene, gearType: GearType, angleShifted = false) {
     super(scene, 0, 0);
     scene.add.existing(this);
 
@@ -38,15 +40,19 @@ export class Gear extends Phaser.GameObjects.Container {
     const y = gear.y + d * Math.sin(r);
     this.setPosition(x, y);
   }
+
+  setGearColor(color: number) {
+    this.gearImage.setTint(color);
+  }
 }
 
-function getGearInfo(gearType: number) {
+function getGearInfo(gearType: GearType) {
   switch (gearType) {
-    case 2:
+    case "p-2":
       return { texture: "gear2", teethCount: 8 };
-    case 3:
+    case "p-3":
       return { texture: "gear3", teethCount: 16 };
-    case 4:
+    case "p-4":
       return { texture: "gear4", teethCount: 32 };
     default:
       return { texture: "gear1", teethCount: 6 };
