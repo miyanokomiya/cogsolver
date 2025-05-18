@@ -1,22 +1,21 @@
-import { GearCircle, GearType } from "../utils/gears";
+import { GearModel, GearType } from "../utils/gears";
 
 export class Gear extends Phaser.GameObjects.Container {
   private shiftAngle = 0;
   private gearImage: Phaser.GameObjects.Image;
   private angleAnimation?: Phaser.Tweens.Tween;
   private teethCount: number;
+  private removable = true;
 
   constructor(
     scene: Phaser.Scene,
-    gearType: GearType,
-    tilt?: GearCircle["tilt"],
-    public rotationDirection: GearCircle["rotationDirection"] = 0,
+    public gearModel: GearModel,
   ) {
     super(scene, 0, 0);
     scene.add.existing(this);
 
-    const gearInfo = getGearInfo(gearType);
-    this.shiftAngle = tilt ? (tilt * 360) / gearInfo.teethCount : 0;
+    const gearInfo = getGearInfo(gearModel.type);
+    this.shiftAngle = this.gearModel.tilt ? (this.gearModel.tilt * 360) / gearInfo.teethCount : 0;
     this.teethCount = gearInfo.teethCount;
 
     this.gearImage = this.scene.add.image(0, 0, gearInfo.texture);
@@ -33,7 +32,7 @@ export class Gear extends Phaser.GameObjects.Container {
   // When rate is 1, 8 teeth geear rotates in 5seconds.
   setGearAngleRelative(rate: number) {
     const count = this.teethCount / 8;
-    const sign = this.rotationDirection;
+    const sign = this.gearModel.rotationDirection;
     this.gearImage.setAngle((sign * (rate * 360)) / count + this.shiftAngle);
   }
 
@@ -59,6 +58,19 @@ export class Gear extends Phaser.GameObjects.Container {
 
   setGearColor(color: number) {
     this.gearImage.setTint(color);
+  }
+
+  setRemovable(removable: boolean) {
+    this.removable = removable;
+    if (removable) {
+      this.gearImage.setAlpha(0.7);
+    } else {
+      this.gearImage.setAlpha(1);
+    }
+  }
+
+  getRemovable() {
+    return this.removable;
   }
 }
 

@@ -17,7 +17,11 @@ const GEAR_ANGLE_UNIT = 45;
 
 const GEAR_INCUT_RADIUS = 6;
 
-export function getAvailableGearPositionForRadius(gears: GearModel[], radius: number): GearCircle[] {
+export function getAvailableGearPositionForRadius(
+  gears: GearModel[],
+  radius: number,
+  obstacles: GearModel[] = [],
+): GearCircle[] {
   const count = 360 / GEAR_ANGLE_UNIT;
   const radians = Array.from({ length: count }, (_, i) => Phaser.Math.DegToRad(GEAR_ANGLE_UNIT * i));
   const ret: GearCircle[] = [];
@@ -37,8 +41,9 @@ export function getAvailableGearPositionForRadius(gears: GearModel[], radius: nu
     });
   });
 
+  const allObstacles = [...gears, ...obstacles];
   return omitCircleWithSamePoints(ret).filter((circle) => {
-    return !isGearOverlapping(circle, gears);
+    return !isGearOverlapping(circle, allObstacles);
   });
 }
 
@@ -53,6 +58,25 @@ function isGearOverlapping(gear: GearCircle, gears: GearCircle[]): boolean {
     if (radiusSum <= distance) return false;
     if (distance < radiusSum - GEAR_INCUT_RADIUS) return true;
     return g.rotationDirection * gear.rotationDirection > 0;
+  });
+}
+
+// Assume all gears are at proper positions
+export function getAdjacentGearMap(gears: GearCircle[]): Map<GearCircle, GearCircle[]> {
+  const map = new Map<GearCircle, GearCircle[]>();
+  gears.forEach((gear) => {
+    map.set(gear, getAdjacentGearMapFor(gears, gear));
+  });
+  return map;
+}
+
+export function getAdjacentGearMapFor(gears: GearCircle[], target: GearCircle): GearCircle[] {
+  return gears.filter((g) => {
+    if (g === target) return false;
+
+    const distance = Phaser.Math.Distance.Between(g.x, g.y, target.x, target.y);
+    const radiusSum = g.radius + target.radius;
+    return radiusSum > distance;
   });
 }
 

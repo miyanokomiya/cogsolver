@@ -2,7 +2,7 @@ import { GearMapComponent } from "../components/GearMapComponent";
 import { InputComponent } from "../components/InputComponent";
 import { VirtualKeyboardComponent } from "../components/VirtualKeyboardComponent";
 import { Gear } from "../pawns/Gear";
-import { createGearModel, GearModel } from "../utils/gears";
+import { createGearModel, GearModel, getAdjacentGearMap, getAdjacentGearMapFor } from "../utils/gears";
 import { GearPool } from "../widgets/GearPool";
 
 export class LevelBase extends Phaser.Events.EventEmitter {
@@ -26,8 +26,8 @@ export class LevelBase extends Phaser.Events.EventEmitter {
     this.gearGroup = this.scene.add.group();
     this.availableGearInfoGroup = this.scene.add.group();
 
-    this.gearMapComponent.setInitialGears([createGearModel("p-2", "init-1", 100, 50, 1)]);
-    this.gearMapComponent.setGoalGears([createGearModel("p-2", "goal-1", 100, 500, -1)]);
+    this.gearMapComponent.setInitialGears([createGearModel("p-2", "goal-1", 100, 500, 1)]);
+    this.gearMapComponent.setGoalGears([createGearModel("p-2", "init-1", 496.5462479183373, 103.45375208166261, 1)]);
     this.gearMapComponent.setAvailableGears([
       ...Array.from({ length: 5 }, () => createGearModel("p-2", Phaser.Utils.String.UUID(), 0, 0)),
       ...Array.from({ length: 5 }, () => createGearModel("p-3", Phaser.Utils.String.UUID(), 0, 0)),
@@ -55,11 +55,21 @@ export class LevelBase extends Phaser.Events.EventEmitter {
     if (this.inputComponent.justPressedKeys.space) {
     }
     if (this.inputComponent.justPressedKeys.esc) {
+      console.log(JSON.parse(JSON.stringify(this.gearMapComponent.freeGears)));
       this.emit("level-pause");
     }
 
     this.rotationTimestamp = (this.rotationTimestamp + delta) % 5000;
     this.animateGears();
+  }
+
+  private checkGameOver() {
+    const connected = this.gearMapComponent.goalGears.every((goalGear) => {
+      return getAdjacentGearMapFor(this.gearMapComponent.freeGears, goalGear).length > 0;
+    });
+    if (connected) {
+      this.emit("level-clear");
+    }
   }
 
   private animateGears() {
@@ -75,42 +85,57 @@ export class LevelBase extends Phaser.Events.EventEmitter {
     const goalGearMap = new Map(this.gearMapComponent.goalGears.map((gear) => [gear.id, gear]));
     const freeGearMap = new Map(this.gearMapComponent.freeGears.map((gear) => [gear.id, gear]));
 
+    const adjacentGearMap = getAdjacentGearMap([
+      ...initialGearMap.values(),
+      ...goalGearMap.values(),
+      ...freeGearMap.values(),
+    ]);
+
     this.gearGroup.getChildren().forEach((gear) => {
       if (!(gear instanceof Gear)) return;
 
-      if (initialGearMap.has(gear.name)) {
-        const model = initialGearMap.get(gear.name)!;
+      if (initialGearMap.has(gear.gearModel.id)) {
+        const model = initialGearMap.get(gear.gearModel.id)!;
         gear.setPosition(model.x, model.y);
-        initialGearMap.delete(gear.name);
-      } else if (goalGearMap.has(gear.name)) {
-        const model = goalGearMap.get(gear.name)!;
+        initialGearMap.delete(gear.gearModel.id);
+      } else if (goalGearMap.has(gear.gearModel.id)) {
+        const model = goalGearMap.get(gear.gearModel.id)!;
         gear.setPosition(model.x, model.y);
-        goalGearMap.delete(gear.name);
-      } else if (freeGearMap.has(gear.name)) {
-        const model = freeGearMap.get(gear.name)!;
+        goalGearMap.delete(gear.gearModel.id);
+      } else if (freeGearMap.has(gear.gearModel.id)) {
+        const model = freeGearMap.get(gear.gearModel.id)!;
         gear.setPosition(model.x, model.y);
-        freeGearMap.delete(gear.name);
+        const adjacentGears = adjacentGearMap.get(model);
+        gear.setRemovable(!adjacentGears || adjacentGears.length < 2);
+        freeGearMap.delete(gear.gearModel.id);
       } else {
         this.gearGroup.remove(gear, true, true);
       }
     });
 
     initialGearMap.forEach((model) => {
-      const gear = new Gear(this.scene, model.type, model.tilt, model.rotationDirection);
-      gear.setPosition(model.x, model.y);
-      gear.setGearColor(0xff4400);
-      this.gearGroup.add(gear);
-    });
-    goalGearMap.forEach((model) => {
-      const gear = new Gear(this.scene, model.type, model.tilt, model.rotationDirection);
+      const gear = new Gear(this.scene, model);
       gear.setPosition(model.x, model.y);
       gear.setGearColor(0x00ff00);
       this.gearGroup.add(gear);
     });
-    freeGearMap.forEach((model) => {
-      const gear = new Gear(this.scene, model.type, model.tilt, model.rotationDirection);
+    goalGearMap.forEach((model) => {
+      const gear = new Gear(this.scene, model);
       gear.setPosition(model.x, model.y);
+      gear.setGearColor(0xff4400);
       this.gearGroup.add(gear);
+    });
+    freeGearMap.forEach((model) => {
+      const gear = new Gear(this.scene, model);
+      gear.setPosition(model.x, model.y);
+      gear.setRemovable(true);
+      this.gearGroup.add(gear);
+
+      gear.setInteractive();
+      gear.on("pointerdown", () => {
+        if (!gear.getRemovable()) return;
+        this.removeFreeGear(model);
+      });
     });
   }
 
@@ -135,7 +160,19 @@ export class LevelBase extends Phaser.Events.EventEmitter {
     this.gearMapComponent.removeAvailableGear(model.id);
     this.gearPool.initGears();
     this.updateGears();
-    this.setNextGearModel();
+    this.setNextGearModel(this.gearPool.getGearModelByType(model.type));
+
+    this.scene.time.delayedCall(500, () => {
+      this.checkGameOver();
+    });
+  }
+
+  private removeFreeGear(model: GearModel) {
+    this.gearMapComponent.removeFreeGear(model.id);
+    this.gearMapComponent.addAvailableGear(model);
+    this.gearPool.initGears();
+    this.updateGears();
+    this.setNextGearModel(this.gearPool.getGearModelByType(model.type));
   }
 
   private setNextGearModel(model?: GearModel) {

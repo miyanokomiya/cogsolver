@@ -21,8 +21,8 @@ export class GearMapComponent {
   }
 
   getAvailableGearInfos(radius: number): GearCircle[] {
-    const allGears = this.initialGears.concat(this.goalGears).concat(this.freeGears);
-    return getAvailableGearPositionForRadius(allGears, radius);
+    const allGears = this.initialGears.concat(this.freeGears);
+    return getAvailableGearPositionForRadius(allGears, radius, this.goalGears);
   }
 
   addFreeGear(gear: GearModel) {
@@ -31,6 +31,10 @@ export class GearMapComponent {
 
   removeFreeGear(id: string) {
     this.freeGears = this.freeGears.filter((g) => g.id !== id);
+  }
+
+  addAvailableGear(gear: GearModel) {
+    this.availableGears.push(gear);
   }
 
   removeAvailableGear(id: string) {
