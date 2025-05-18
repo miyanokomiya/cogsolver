@@ -57,7 +57,13 @@ function isGearOverlapping(gear: GearCircle, gears: GearCircle[]): boolean {
     const radiusSum = g.radius + gear.radius;
     if (radiusSum <= distance) return false;
     if (distance < radiusSum - GEAR_INCUT_RADIUS) return true;
-    return g.rotationDirection * gear.rotationDirection > 0;
+    if (g.rotationDirection * gear.rotationDirection > 0) return true;
+
+    // TODO: This may work only for 1 / 2 tilt unit.
+    const tiltSum = g.tilt + gear.tilt;
+    if (Math.abs(tiltSum - Math.round(tiltSum)) < 1e-6) return true;
+
+    return false;
   });
 }
 
