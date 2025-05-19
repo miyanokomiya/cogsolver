@@ -16,24 +16,28 @@ export class GearPool extends Phaser.GameObjects.Container {
     this.initGears();
   }
 
+  private getAvailableGearModels(): [GearModel, number][] {
+    const grouped = Object.groupBy(this.gearMapComponent.availableGears, (gear) => gear.type);
+    const gearObjs = Object.entries(grouped).sort((a, b) => (a[0] < b[0] ? -1 : 1));
+    return gearObjs.map(([, gears]) => {
+      return [gears[0], gears.length];
+    });
+  }
+
   initGears() {
     this.removeAll(true);
 
-    const grouped = Object.groupBy(this.gearMapComponent.availableGears, (gear) => gear.type);
-
     let x = 0;
-    const gearObjs = Object.entries(grouped)
-      .sort((a, b) => (a[0] < b[0] ? -1 : 1))
-      .map(([, gears]) => {
-        const gear = new GearPoolItem(this.scene, gears[0], gears.length);
-        x += 60;
-        gear.setPosition(x, gear.height / 2);
-        gear.setInteractive();
-        gear.on("pointerdown", () => {
-          this.emit("gear-select", gears[0]);
-        });
-        return gear;
+    const gearObjs = this.getAvailableGearModels().map(([gearModel, count]) => {
+      const gear = new GearPoolItem(this.scene, gearModel, count);
+      x += 60;
+      gear.setPosition(x, gear.height / 2);
+      gear.setInteractive();
+      gear.on("pointerdown", () => {
+        this.emit("gear-select", gearModel);
       });
+      return gear;
+    });
     this.add(gearObjs.reverse());
   }
 
@@ -56,16 +60,16 @@ export class GearPool extends Phaser.GameObjects.Container {
   }
 
   getNextGearModelByType(type?: GearType): GearModel | undefined {
-    const grouped = Object.groupBy(this.gearMapComponent.availableGears, (gear) => gear.type);
-    const types = Object.keys(grouped);
+    const infos = this.getAvailableGearModels();
+    const types = infos.map(([gearModel]) => gearModel.type);
     const index = type ? types.indexOf(type) : types.length - 1;
     const nextType = types[(index + 1) % types.length];
     return this.getGearModelByType(nextType as GearType);
   }
 
   getPrevGearModelByType(type?: GearType): GearModel | undefined {
-    const grouped = Object.groupBy(this.gearMapComponent.availableGears, (gear) => gear.type);
-    const types = Object.keys(grouped);
+    const infos = this.getAvailableGearModels();
+    const types = infos.map(([gearModel]) => gearModel.type);
     const index = type ? types.indexOf(type) : 0;
     const nextType = types.at(index - 1);
     return this.getGearModelByType(nextType as GearType);
