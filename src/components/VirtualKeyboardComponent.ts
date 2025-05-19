@@ -34,14 +34,18 @@ export class VirtualKeyboardComponent {
       .on("pointerdown", () => this.handleButtonPress(key))
       .on("pointerup", () => this.handleButtonRelease(key))
       .on("pointerleave", () => this.handleButtonRelease(key));
+    button.setScrollFactor(0);
+    button.setDepth(100);
 
-    this.scene.add
+    const text = this.scene.add
       .text(x, y, label, {
         fontSize: "20px",
         fontFamily: "Arial",
         color: "#ffffff",
       })
       .setOrigin(0.5);
+    text.setScrollFactor(0);
+    text.setDepth(100);
 
     return button;
   }

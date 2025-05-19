@@ -81,7 +81,7 @@ export class LevelSelectScene extends Phaser.Scene {
       .text(
         lineX,
         this.scale.height - 40,
-        `Move & Action: Mouse, Touch\nPause: Escape\n\n${process.env.__APP_VERSION__}`,
+        `Move & Action: Mouse, Touch\nSwitch Gears: Wheel\nPause: Escape\n\n${process.env.__APP_VERSION__}`,
         {
           fontSize: "20px",
           fontFamily: DEFAULT_FONT,

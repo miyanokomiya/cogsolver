@@ -42,4 +42,12 @@ export class GearMapComponent {
     );
     return this.goalGears.filter((goalGear) => connectedSet.has(goalGear.id));
   }
+
+  getGoalBounds(): [minX: number, minY: number, maxX: number, maxY: number] {
+    const minX = Math.min(...this.goalGears.map((g) => g.x));
+    const minY = Math.min(...this.goalGears.map((g) => g.y));
+    const maxX = Math.max(...this.goalGears.map((g) => g.x));
+    const maxY = Math.max(...this.goalGears.map((g) => g.y));
+    return [minX, minY, maxX, maxY];
+  }
 }

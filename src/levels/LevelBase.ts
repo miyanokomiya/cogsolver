@@ -1,5 +1,6 @@
 import { GearMapComponent } from "../components/GearMapComponent";
 import { InputComponent } from "../components/InputComponent";
+import { ScrollableCameraComponent } from "../components/ScrollableCameraComponent";
 import { VirtualKeyboardComponent } from "../components/VirtualKeyboardComponent";
 import { Gear } from "../pawns/Gear";
 import { createGearModel, GearModel } from "../utils/gears";
@@ -9,6 +10,7 @@ import { GearPool } from "../widgets/GearPool";
 export class LevelBase extends Phaser.Events.EventEmitter {
   protected inputComponent!: InputComponent;
   private vkc!: VirtualKeyboardComponent;
+  private scrollableCameraComponent!: ScrollableCameraComponent;
   private gearGroup!: Phaser.GameObjects.Group;
   private availableGearInfoGroup!: Phaser.GameObjects.Group;
   protected gearMapComponent!: GearMapComponent;
@@ -16,8 +18,16 @@ export class LevelBase extends Phaser.Events.EventEmitter {
   private nextGearModel: GearModel | undefined;
   private rotationTimestamp = 0;
 
+  protected soundGearAdd: Phaser.Sound.BaseSound;
+  protected soundGearRemove: Phaser.Sound.BaseSound;
+  protected soundLevelClear: Phaser.Sound.BaseSound;
+
   constructor(protected scene: Phaser.Scene) {
     super();
+
+    this.soundGearAdd = scene.sound.add("gear_add", { volume: 0.5 });
+    this.soundGearRemove = scene.sound.add("gear_remove", { volume: 0.5 });
+    this.soundLevelClear = scene.sound.add("level_clear", { volume: 0.5 });
   }
 
   protected setupLevel() {
@@ -34,19 +44,37 @@ export class LevelBase extends Phaser.Events.EventEmitter {
     ]);
   }
 
+  protected getCameraBounds(): [minX: number, minY: number, maxX: number, maxY: number] {
+    const goalBounds = this.gearMapComponent.getGoalBounds();
+    const padding = 400;
+    return [goalBounds[0] - padding, goalBounds[1] - padding, goalBounds[2] + padding, goalBounds[3] + padding];
+  }
+
   create() {
     this.inputComponent = new InputComponent(this.scene);
     this.vkc = new VirtualKeyboardComponent(this.scene, this.inputComponent);
+
     this.gearMapComponent = new GearMapComponent();
     this.gearGroup = this.scene.add.group();
     this.availableGearInfoGroup = this.scene.add.group();
 
     this.setupLevel();
 
+    this.scrollableCameraComponent = new ScrollableCameraComponent(this.scene, this.scene.cameras.main);
+    this.scrollableCameraComponent.setScrollBounds(...this.getCameraBounds());
+
     this.gearPool = new GearPool(this.scene, this.gearMapComponent);
-    this.gearPool.setPosition(this.scene.scale.width - 250, this.scene.scale.height - 120);
+    this.gearPool.setDepth(10);
+    this.gearPool.setPosition(this.scene.scale.width - 250, this.scene.scale.height - 70);
     this.gearPool.on("gear-select", (model: GearModel) => {
       this.setNextGearModel(model);
+    });
+    this.scene.input.on("wheel", (_a: any, _b: any, _deltaX: number, deltaY: number) => {
+      const nextType =
+        deltaY > 0
+          ? this.gearPool.getNextGearModelByType(this.gearPool.getSelectedType())
+          : this.gearPool.getPrevGearModelByType(this.gearPool.getSelectedType());
+      this.setNextGearModel(nextType);
     });
 
     this.updateGears();
@@ -77,6 +105,7 @@ export class LevelBase extends Phaser.Events.EventEmitter {
   private checkGameOver() {
     this.gearMapComponent.getConnectedGoals();
     if (this.gearMapComponent.getConnectedGoals().length === this.gearMapComponent.goalGears.length) {
+      this.soundLevelClear.play();
       this.emit("level-clear");
     }
   }
@@ -155,6 +184,7 @@ export class LevelBase extends Phaser.Events.EventEmitter {
     this.gearPool.initGears();
     this.updateGears();
     this.setNextGearModel(this.gearPool.getGearModelByType(model.type));
+    this.soundGearAdd.play();
 
     this.scene.time.delayedCall(500, () => {
       this.checkGameOver();
@@ -167,6 +197,7 @@ export class LevelBase extends Phaser.Events.EventEmitter {
     this.gearPool.initGears();
     this.updateGears();
     this.setNextGearModel(this.gearPool.getGearModelByType(model.type));
+    this.soundGearRemove.play();
   }
 
   private setNextGearModel(model?: GearModel) {

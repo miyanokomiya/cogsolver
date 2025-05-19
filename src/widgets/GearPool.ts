@@ -13,6 +13,10 @@ export class GearPool extends Phaser.GameObjects.Container {
     super(scene, 0, 0);
     scene.add.existing(this);
 
+    // Each interactive item in the container must have a scroll factor of 0 individually as well.
+    // Otherwise, the pointer events won't work after scrolling.
+    this.setScrollFactor(0);
+
     this.initGears();
   }
 
@@ -26,10 +30,11 @@ export class GearPool extends Phaser.GameObjects.Container {
       .sort((a, b) => (a[0] < b[0] ? -1 : 1))
       .map(([, gears]) => {
         const gear = new GearPoolItem(this.scene, gears[0], gears.length);
+        gear.setScrollFactor(0);
         x += 60;
         gear.setPosition(x, gear.height / 2);
         gear.setInteractive();
-        gear.on("pointerup", () => {
+        gear.on("pointerdown", () => {
           this.emit("gear-select", gears[0]);
         });
         return gear;
@@ -54,6 +59,22 @@ export class GearPool extends Phaser.GameObjects.Container {
     if (!item) return;
     return (item as GearPoolItem).gearModel;
   }
+
+  getNextGearModelByType(type?: GearType): GearModel | undefined {
+    const grouped = Object.groupBy(this.gearMapComponent.availableGears, (gear) => gear.type);
+    const types = Object.keys(grouped);
+    const index = type ? types.indexOf(type) : types.length - 1;
+    const nextType = types[(index + 1) % types.length];
+    return this.getGearModelByType(nextType as GearType);
+  }
+
+  getPrevGearModelByType(type?: GearType): GearModel | undefined {
+    const grouped = Object.groupBy(this.gearMapComponent.availableGears, (gear) => gear.type);
+    const types = Object.keys(grouped);
+    const index = type ? types.indexOf(type) : 0;
+    const nextType = types.at(index - 1);
+    return this.getGearModelByType(nextType as GearType);
+  }
 }
 
 class GearPoolItem extends Phaser.GameObjects.Container {
@@ -70,7 +91,7 @@ class GearPoolItem extends Phaser.GameObjects.Container {
 
     this.gear = new Gear(scene, gearModel);
     this.label = scene.add.text(0, -this.gear.height / 2 - 4, `#${count}`, {
-      fontSize: "20px",
+      fontSize: "18px",
       color: "#ffffff",
       fontFamily: DEFAULT_FONT,
     });
