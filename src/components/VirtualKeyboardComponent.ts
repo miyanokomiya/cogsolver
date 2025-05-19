@@ -34,7 +34,6 @@ export class VirtualKeyboardComponent {
       .on("pointerdown", () => this.handleButtonPress(key))
       .on("pointerup", () => this.handleButtonRelease(key))
       .on("pointerleave", () => this.handleButtonRelease(key));
-    button.setScrollFactor(0);
     button.setDepth(100);
 
     const text = this.scene.add
@@ -44,7 +43,6 @@ export class VirtualKeyboardComponent {
         color: "#ffffff",
       })
       .setOrigin(0.5);
-    text.setScrollFactor(0);
     text.setDepth(100);
 
     return button;

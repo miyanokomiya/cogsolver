@@ -32,8 +32,9 @@ export class AvailableGearMarker extends Phaser.GameObjects.Container {
   setFocused(focused: boolean) {
     this.circle
       .clear()
-      .fillStyle(focused ? 0x00ff00 : 0xffff00, 1)
+      .fillStyle(focused ? 0x00ff00 : 0xffff00)
       .lineStyle(2, 0x000000)
+      .setAlpha(0.7)
       .fillCircle(0, 0, radius)
       .strokeCircle(0, 0, radius);
 

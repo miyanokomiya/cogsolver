@@ -4,6 +4,7 @@ import { LevelSelectScene } from "./scenes/LevelSelectScene";
 import { MainScene } from "./scenes/MainScene";
 import { LevelEndScene } from "./scenes/LevelEndScene";
 import { LevelPauseScene } from "./scenes/LevelPauseScene";
+import { MainHUDScene } from "./scenes/MainHUDScene";
 
 new Phaser.Game({
   parent: document.getElementById("app") as HTMLElement,
@@ -11,7 +12,7 @@ new Phaser.Game({
   width: 800,
   height: 600,
   backgroundColor: "#1099bb",
-  scene: [LevelSelectScene, MainScene, LevelEndScene, LevelPauseScene],
+  scene: [LevelSelectScene, MainScene, MainHUDScene, LevelEndScene, LevelPauseScene],
   physics: {
     default: "arcade",
     arcade: {

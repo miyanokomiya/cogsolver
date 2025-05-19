@@ -52,8 +52,9 @@ export class LevelBase extends Phaser.Events.EventEmitter {
   }
 
   create() {
+    const hudScene = this.scene.scene.get("MAIN_HUD");
     this.inputComponent = new InputComponent(this.scene);
-    this.vkc = new VirtualKeyboardComponent(this.scene, this.inputComponent);
+    this.vkc = new VirtualKeyboardComponent(hudScene, this.inputComponent);
 
     this.gearMapComponent = new GearMapComponent();
     this.gearGroup = this.scene.add.group();
@@ -61,21 +62,23 @@ export class LevelBase extends Phaser.Events.EventEmitter {
 
     this.setupLevel();
 
+    const cameraBounds = this.getCameraBounds();
     this.scrollableCameraComponent = new ScrollableCameraComponent(this.scene, this.scene.cameras.main);
-    this.scrollableCameraComponent.setScrollBounds(...this.getCameraBounds());
+    this.scrollableCameraComponent.setScrollBounds(...cameraBounds);
+    this.scrollableCameraComponent.createUI(hudScene);
 
     this.background = this.scene.add
       .tileSprite(
         this.scene.scale.width / 2,
         this.scene.scale.height / 2,
-        this.scene.scale.width,
-        this.scene.scale.height,
+        cameraBounds[2] - cameraBounds[0],
+        cameraBounds[3] - cameraBounds[1],
         "rect_tile",
       )
       .setAlpha(0.1)
       .setScrollFactor(0);
 
-    this.gearPool = new GearPool(this.scene, this.gearMapComponent);
+    this.gearPool = new GearPool(hudScene, this.gearMapComponent);
     this.gearPool.setDepth(10);
     this.gearPool.setPosition(this.scene.scale.width - 250, this.scene.scale.height - 70);
     this.setNextGearModel(this.gearPool.getNextGearModelByType());

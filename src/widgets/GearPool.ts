@@ -13,10 +13,6 @@ export class GearPool extends Phaser.GameObjects.Container {
     super(scene, 0, 0);
     scene.add.existing(this);
 
-    // Each interactive item in the container must have a scroll factor of 0 individually as well.
-    // Otherwise, the pointer events won't work after scrolling.
-    this.setScrollFactor(0);
-
     this.initGears();
   }
 
@@ -30,7 +26,6 @@ export class GearPool extends Phaser.GameObjects.Container {
       .sort((a, b) => (a[0] < b[0] ? -1 : 1))
       .map(([, gears]) => {
         const gear = new GearPoolItem(this.scene, gears[0], gears.length);
-        gear.setScrollFactor(0);
         x += 60;
         gear.setPosition(x, gear.height / 2);
         gear.setInteractive();
