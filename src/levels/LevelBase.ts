@@ -18,6 +18,7 @@ export class LevelBase extends Phaser.Events.EventEmitter {
   private gearPool!: GearPool;
   private nextGearModel: GearModel | undefined;
   private rotationTimestamp = 0;
+  private cleared = false;
 
   protected soundGearAdd: Phaser.Sound.BaseSound;
   protected soundGearRemove: Phaser.Sound.BaseSound;
@@ -83,14 +84,14 @@ export class LevelBase extends Phaser.Events.EventEmitter {
     this.gearPool.setPosition(this.scene.scale.width - 250, this.scene.scale.height - 70);
     this.setNextGearModel(this.gearPool.getNextGearModelByType());
     this.gearPool.on("gear-select", (model: GearModel) => {
-      this.setNextGearModel(model);
+      if (this.nextGearModel?.type === model.type) {
+        this.setNextGearModel();
+      } else {
+        this.setNextGearModel(model);
+      }
     });
-    this.scene.input.on("wheel", (_a: any, _b: any, _deltaX: number, deltaY: number) => {
-      const nextType =
-        deltaY > 0
-          ? this.gearPool.getNextGearModelByType(this.gearPool.getSelectedType())
-          : this.gearPool.getPrevGearModelByType(this.gearPool.getSelectedType());
-      this.setNextGearModel(nextType);
+    hudScene.input.on("wheel", (_a: any, _b: any, _deltaX: number, deltaY: number) => {
+      this.slideSelectedGear(deltaY);
     });
 
     this.updateGears();
@@ -120,10 +121,21 @@ export class LevelBase extends Phaser.Events.EventEmitter {
     this.animateGears();
   }
 
+  private slideSelectedGear(delta: number) {
+    const nextType =
+      delta > 0
+        ? this.gearPool.getNextGearModelByType(this.gearPool.getSelectedType())
+        : this.gearPool.getPrevGearModelByType(this.gearPool.getSelectedType());
+    this.setNextGearModel(nextType);
+  }
+
   private checkGameOver() {
+    if (this.cleared) return;
+
     this.gearMapComponent.getConnectedGoals();
     if (this.gearMapComponent.getConnectedGoals().length === this.gearMapComponent.goalGears.length) {
       this.soundLevelClear.play();
+      this.cleared = true;
       this.emit("level-clear");
     }
   }

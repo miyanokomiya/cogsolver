@@ -37,9 +37,10 @@ export class LevelEndScene extends Phaser.Scene {
     const nextButton = this.config.cleared && nextLevel ? new MenuButton(this, "Next", "primary") : undefined;
     if (nextButton) buttons.push(nextButton);
 
+    const resumeButton = new MenuButton(this, "Resume");
     const retryButton = new MenuButton(this, "Retry");
     const menuButton = new MenuButton(this, "Menu");
-    buttons.push(retryButton, menuButton);
+    buttons.push(resumeButton, retryButton, menuButton);
 
     buttons.forEach((button, i) => {
       if (i === 0) {
@@ -51,6 +52,8 @@ export class LevelEndScene extends Phaser.Scene {
       button.on("pointerdown", () => {
         if (button === nextButton) {
           this.scene.start("MAIN", { grade: this.config.grade, index: this.config.index + 1 });
+        } else if (button === resumeButton) {
+          this.scene.stop().resume("MAIN");
         } else if (button === retryButton) {
           this.scene.start("MAIN", { grade: this.config.grade, index: this.config.index });
         } else if (button === menuButton) {
