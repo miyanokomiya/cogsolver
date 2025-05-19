@@ -78,6 +78,7 @@ export class LevelBase extends Phaser.Events.EventEmitter {
     this.gearPool = new GearPool(this.scene, this.gearMapComponent);
     this.gearPool.setDepth(10);
     this.gearPool.setPosition(this.scene.scale.width - 250, this.scene.scale.height - 70);
+    this.setNextGearModel(this.gearPool.getNextGearModelByType());
     this.gearPool.on("gear-select", (model: GearModel) => {
       this.setNextGearModel(model);
     });

@@ -1,7 +1,7 @@
 import { Gear } from "../pawns/Gear";
 import { GearModel } from "../utils/gears";
 
-const radius = 8;
+const radius = 12;
 
 export class AvailableGearMarker extends Phaser.GameObjects.Container {
   private circle: Phaser.GameObjects.Graphics;
