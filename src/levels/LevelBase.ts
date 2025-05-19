@@ -28,7 +28,7 @@ export class LevelBase extends Phaser.Events.EventEmitter {
 
     this.soundGearAdd = scene.sound.add("gear_add", { volume: 0.5 });
     this.soundGearRemove = scene.sound.add("gear_remove", { volume: 0.3 });
-    this.soundLevelClear = scene.sound.add("level_clear", { volume: 0.3 });
+    this.soundLevelClear = scene.sound.add("level_clear", { volume: 0.2 });
   }
 
   protected setupLevel() {

@@ -43,8 +43,8 @@ export class LevelEndScene extends Phaser.Scene {
 
     buttons.forEach((button, i) => {
       if (i === 0) {
-        button.x = this.scale.width / 2 - button.width / 2;
-        button.y = this.scale.height / 2 - button.height / 2;
+        button.x = this.scale.width / 2;
+        button.y = this.scale.height / 2;
       } else {
         Phaser.Display.Align.In.BottomCenter(button, buttons[i - 1], 0, button.height + 14);
       }
