@@ -1,14 +1,9 @@
-import { GearCircle, GearModel, getAdjacentGearMapFor, getAvailableGearPositionForRadius } from "../utils/gears";
+import { checkGearsConnected, GearCircle, GearModel, getAvailableGearPositionForRadius } from "../utils/gears";
 
 export class GearMapComponent {
-  initialGears: GearModel[] = [];
   goalGears: GearModel[] = [];
   freeGears: GearModel[] = [];
   availableGears: GearModel[] = [];
-
-  setInitialGears(gears: GearModel[]) {
-    this.initialGears = gears.concat();
-  }
 
   setGoalGears(gears: GearModel[]) {
     this.goalGears = gears.concat();
@@ -19,11 +14,8 @@ export class GearMapComponent {
   }
 
   getAvailableGearInfos(radius: number): GearCircle[] {
-    const connectedGoals = this.getConnectedGoals();
-    const connectedGoalSet = new Set(connectedGoals);
-    const obstacles = this.goalGears.filter((goalGear) => !connectedGoalSet.has(goalGear));
-    const allGears = this.initialGears.concat(this.freeGears).concat(connectedGoals);
-    return getAvailableGearPositionForRadius(allGears, radius, obstacles);
+    const allGears = this.freeGears.concat(this.goalGears);
+    return getAvailableGearPositionForRadius(allGears, radius);
   }
 
   addFreeGear(gear: GearModel) {
@@ -43,8 +35,11 @@ export class GearMapComponent {
   }
 
   getConnectedGoals() {
-    return this.goalGears.filter((goalGear) => {
-      return getAdjacentGearMapFor(this.freeGears, goalGear).length > 0;
-    });
+    const allGears = this.freeGears.concat(this.goalGears);
+    const connectedSet = checkGearsConnected(
+      allGears,
+      this.goalGears.map((g) => g.id),
+    );
+    return this.goalGears.filter((goalGear) => connectedSet.has(goalGear.id));
   }
 }

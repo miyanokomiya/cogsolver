@@ -78,12 +78,16 @@ export function getAdjacentGearMap(gears: GearCircle[]): Map<GearCircle, GearCir
 
 export function getAdjacentGearMapFor(gears: GearCircle[], target: GearCircle): GearCircle[] {
   return gears.filter((g) => {
-    if (g === target) return false;
-
-    const distance = Phaser.Math.Distance.Between(g.x, g.y, target.x, target.y);
-    const radiusSum = g.radius + target.radius;
-    return radiusSum > distance;
+    return isAdjacentGear(g, target);
   });
+}
+
+function isAdjacentGear(gear: GearCircle, target: GearCircle): boolean {
+  if (gear === target) return false;
+
+  const distance = Phaser.Math.Distance.Between(gear.x, gear.y, target.x, target.y);
+  const radiusSum = gear.radius + target.radius;
+  return radiusSum > distance;
 }
 
 function omitCircleWithSamePoints(points: GearCircle[], epsilon = 1e-6): GearCircle[] {
@@ -122,4 +126,40 @@ export function createCircleFromGearType(type: GearType, x: number, y: number): 
     default:
       return { radius: 24, x, y, rotationDirection: 0, tilt: 0 };
   }
+}
+
+// Treat targetIds[0] as the starting point
+export function checkGearsConnected(gears: GearModel[], targetIds: string[]): Set<string> {
+  if (targetIds.length === 0) return new Set();
+
+  // Build a map from id to gear
+  const gearMap = new Map<string, GearModel>();
+  gears.forEach((g) => gearMap.set(g.id, g));
+
+  // Use BFS to find all connected gears starting from the first target
+  const visited = new Set<string>();
+  const queue: string[] = [];
+  if (!gearMap.has(targetIds[0])) return visited;
+
+  queue.push(targetIds[0]);
+  visited.add(targetIds[0]);
+
+  while (queue.length > 0) {
+    const currentId = queue.shift()!;
+    const currentGear = gearMap.get(currentId)!;
+    for (const other of gears) {
+      if (other.id === currentId) continue;
+      if (!visited.has(other.id) && isAdjacentGear(currentGear, other)) {
+        visited.add(other.id);
+        queue.push(other.id);
+      }
+    }
+  }
+
+  // If the visited set is less than 2, it means no gears are connected
+  if (visited.size < 2) return new Set();
+
+  // Check if all targetIds are in the visited set (i.e., connected)
+  // (The function returns the set of connected gear ids, not just a boolean)
+  return visited;
 }

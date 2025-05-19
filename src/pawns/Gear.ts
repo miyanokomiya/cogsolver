@@ -5,11 +5,11 @@ export class Gear extends Phaser.GameObjects.Container {
   private gearImage: Phaser.GameObjects.Image;
   private angleAnimation?: Phaser.Tweens.Tween;
   private teethCount: number;
-  private removable = true;
 
   constructor(
     scene: Phaser.Scene,
     public gearModel: GearModel,
+    removable = false,
   ) {
     super(scene, 0, 0);
     scene.add.existing(this);
@@ -23,6 +23,19 @@ export class Gear extends Phaser.GameObjects.Container {
     this.setGearAngle(0);
 
     this.setSize(this.gearImage.width, this.gearImage.height);
+
+    if (removable) {
+      this.setInteractive();
+      this.on("pointermove", () => {
+        this.setAlpha(0.7);
+      });
+      this.on("pointerout", () => {
+        this.setAlpha(1);
+      });
+      this.on("pointerdown", () => {
+        this.emit("gear-remove", this);
+      });
+    }
   }
 
   setGearAngle(angle: number) {
@@ -58,19 +71,6 @@ export class Gear extends Phaser.GameObjects.Container {
 
   setGearColor(color: number) {
     this.gearImage.setTint(color);
-  }
-
-  setRemovable(removable: boolean) {
-    this.removable = removable;
-    if (removable) {
-      this.gearImage.setAlpha(0.7);
-    } else {
-      this.gearImage.setAlpha(1);
-    }
-  }
-
-  getRemovable() {
-    return this.removable;
   }
 }
 
