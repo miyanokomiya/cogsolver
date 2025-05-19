@@ -4,6 +4,7 @@ import { LevelHUD } from "../widgets/LevelHUD";
 import { getGlobalStorageComponent } from "../components/GlobalStorageComponent";
 import { LevelBase } from "../levels/LevelBase";
 
+import rect_tile from "../assets/images/rect_tile.png";
 import impact_1 from "../assets/sounds/impact_1.mp3";
 import crunch_1 from "../assets/sounds/crunch_1.mp3";
 import tone_1 from "../assets/sounds/tone_1.mp3";
@@ -18,6 +19,7 @@ export class MainScene extends Phaser.Scene {
   }
 
   preload() {
+    this.load.image("rect_tile", rect_tile);
     this.load.audio("gear_add", impact_1);
     this.load.audio("clink_2", crunch_1);
     this.load.audio("gear_remove", tone_1);

@@ -10,6 +10,7 @@ import { GearPool } from "../widgets/GearPool";
 export class LevelBase extends Phaser.Events.EventEmitter {
   protected inputComponent!: InputComponent;
   private vkc!: VirtualKeyboardComponent;
+  private background!: Phaser.GameObjects.TileSprite;
   private scrollableCameraComponent!: ScrollableCameraComponent;
   private gearGroup!: Phaser.GameObjects.Group;
   private availableGearInfoGroup!: Phaser.GameObjects.Group;
@@ -26,8 +27,8 @@ export class LevelBase extends Phaser.Events.EventEmitter {
     super();
 
     this.soundGearAdd = scene.sound.add("gear_add", { volume: 0.5 });
-    this.soundGearRemove = scene.sound.add("gear_remove", { volume: 0.5 });
-    this.soundLevelClear = scene.sound.add("level_clear", { volume: 0.5 });
+    this.soundGearRemove = scene.sound.add("gear_remove", { volume: 0.3 });
+    this.soundLevelClear = scene.sound.add("level_clear", { volume: 0.3 });
   }
 
   protected setupLevel() {
@@ -63,6 +64,17 @@ export class LevelBase extends Phaser.Events.EventEmitter {
     this.scrollableCameraComponent = new ScrollableCameraComponent(this.scene, this.scene.cameras.main);
     this.scrollableCameraComponent.setScrollBounds(...this.getCameraBounds());
 
+    this.background = this.scene.add
+      .tileSprite(
+        this.scene.scale.width / 2,
+        this.scene.scale.height / 2,
+        this.scene.scale.width,
+        this.scene.scale.height,
+        "rect_tile",
+      )
+      .setAlpha(0.1)
+      .setScrollFactor(0);
+
     this.gearPool = new GearPool(this.scene, this.gearMapComponent);
     this.gearPool.setDepth(10);
     this.gearPool.setPosition(this.scene.scale.width - 250, this.scene.scale.height - 70);
@@ -84,6 +96,8 @@ export class LevelBase extends Phaser.Events.EventEmitter {
   update(_time: number, delta: number): void {
     this.inputComponent.update();
     this.vkc.update();
+    this.background.tilePositionX = this.scene.cameras.main.scrollX;
+    this.background.tilePositionY = this.scene.cameras.main.scrollY;
 
     if (this.inputComponent.pressedKeys.left) {
     }
