@@ -27,3 +27,14 @@
   max-height: 600px;
   height: 100vh;
 }
+#input-block {
+  margin: 2px auto;
+  max-width: 800px;
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#input-seed {
+  width: 100px;
+}

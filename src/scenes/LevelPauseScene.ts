@@ -48,7 +48,8 @@ export class LevelPauseScene extends Phaser.Scene {
         if (button === nextButton) {
           this.resumeGame();
         } else if (button === retryButton) {
-          this.scene.start("MAIN", { grade: this.config.grade, index: this.config.index });
+          const config = { grade: this.config.grade, index: this.config.index };
+          this.scene.start("MAIN", config);
         } else if (button === menuButton) {
           this.scene.stop("MAIN").start("LEVEL_SELECT", { grade: this.config.grade, index: this.config.index });
         }

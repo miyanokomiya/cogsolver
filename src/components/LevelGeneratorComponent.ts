@@ -97,10 +97,12 @@ export class LevelGeneratorComponent {
 
   private centralizeGears(gearModels: GearModel[]) {
     const cx = gearModels.reduce((v, m) => v + m.x, 0) / gearModels.length;
-    const cy = gearModels.reduce((v, m) => v + m.x, 0) / gearModels.length;
+    const cy = gearModels.reduce((v, m) => v + m.y, 0) / gearModels.length;
+    const dx = 400 - cx;
+    const dy = 300 - cy;
     gearModels.forEach((m) => {
-      m.x += 400 - cx;
-      m.y += 300 - cy;
+      m.x += dx;
+      m.y += dy;
     });
   }
 

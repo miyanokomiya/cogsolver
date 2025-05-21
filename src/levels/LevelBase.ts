@@ -3,6 +3,7 @@ import { InputComponent } from "../components/InputComponent";
 import { ScrollableCameraComponent } from "../components/ScrollableCameraComponent";
 import { VirtualKeyboardComponent } from "../components/VirtualKeyboardComponent";
 import { Gear } from "../pawns/Gear";
+import {MainHUDScene} from "../scenes/MainHUDScene";
 import { createGearModel, GearModel } from "../utils/gears";
 import { AvailableGearMarker } from "../widgets/AvailableGearMarker";
 import { GearPool } from "../widgets/GearPool";
@@ -23,7 +24,7 @@ export class LevelBase extends Phaser.Events.EventEmitter {
   protected soundGearAdd: Phaser.Sound.BaseSound;
   protected soundGearRemove: Phaser.Sound.BaseSound;
   protected soundLevelClear: Phaser.Sound.BaseSound;
-  protected seed = "";
+  seed = "";
 
   constructor(protected scene: Phaser.Scene) {
     super();
@@ -54,7 +55,8 @@ export class LevelBase extends Phaser.Events.EventEmitter {
   }
 
   create() {
-    const hudScene = this.scene.scene.get("MAIN_HUD");
+    console.log("LevelBase.ts");
+    const hudScene = this.scene.scene.get("MAIN_HUD") as MainHUDScene;
     this.inputComponent = new InputComponent(this.scene);
     this.vkc = new VirtualKeyboardComponent(hudScene, this.inputComponent);
 

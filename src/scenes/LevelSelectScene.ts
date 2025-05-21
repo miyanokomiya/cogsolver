@@ -70,7 +70,8 @@ export class LevelSelectScene extends Phaser.Scene {
           !!progress,
         );
         button.on("pointerdown", () => {
-          this.scene.start("MAIN", { grade: button.levelGrade, index: button.levelIndex });
+          const config = { grade: button.levelGrade, index: button.levelIndex };
+          this.scene.start("MAIN", config);
         });
         return button;
       });

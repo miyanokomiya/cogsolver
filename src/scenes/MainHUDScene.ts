@@ -4,6 +4,8 @@ import { LevelHUD } from "../widgets/LevelHUD";
 
 export class MainHUDScene extends Phaser.Scene {
   private config!: LevelSceneConfig;
+  private levelHUD!: LevelHUD;
+  public seed = "";
 
   constructor() {
     super({ key: "MAIN_HUD" });
@@ -14,6 +16,10 @@ export class MainHUDScene extends Phaser.Scene {
   }
 
   create() {
-    new LevelHUD(this, this.config).setDepth(10);
+    console.log("MainHUDScene.ts");
+    this.levelHUD = new LevelHUD(this, this.config).setDepth(10);
+    if (this.seed) {
+      this.levelHUD.displaySeed(this.seed);
+    }
   }
 }

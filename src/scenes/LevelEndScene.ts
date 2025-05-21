@@ -51,11 +51,13 @@ export class LevelEndScene extends Phaser.Scene {
       }
       button.on("pointerdown", () => {
         if (button === nextButton) {
-          this.scene.start("MAIN", { grade: this.config.grade, index: this.config.index + 1 });
+          const config = { grade: this.config.grade, index: this.config.index + 1 };
+          this.scene.start("MAIN", config);
         } else if (button === resumeButton) {
           this.scene.stop().resume("MAIN");
         } else if (button === retryButton) {
-          this.scene.start("MAIN", { grade: this.config.grade, index: this.config.index });
+          const config = { grade: this.config.grade, index: this.config.index };
+          this.scene.start("MAIN", config);
         } else if (button === menuButton) {
           this.scene.stop("MAIN").start("LEVEL_SELECT", { grade: this.config.grade, index: this.config.index });
         }

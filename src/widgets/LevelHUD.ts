@@ -1,8 +1,9 @@
-import { LEVEL_GRADE, LevelInfo } from "../levels";
+import { LEVEL_GRADE, LevelSceneConfig } from "../levels";
+import {copyText} from "../utils/inputs";
 import { DEFAULT_FONT } from "../utils/settings";
 
 export class LevelHUD extends Phaser.GameObjects.Container {
-  constructor(scene: Phaser.Scene, levelInfo: LevelInfo, seed?: string) {
+  constructor(scene: Phaser.Scene, levelInfo: LevelSceneConfig) {
     super(scene);
     scene.add.existing(this);
     this.setScrollFactor(0);
@@ -24,14 +25,21 @@ export class LevelHUD extends Phaser.GameObjects.Container {
     levelText.setOrigin(0.5, 0.5);
 
     this.add([background, levelText]);
+  }
 
-    if (seed) {
-      const seedText = scene.add.text(scene.scale.width - 20, 18, `Seed: ${seed}`, {
-        fontSize: "24px",
-        fontFamily: DEFAULT_FONT,
-      });
-      levelText.setOrigin(1, 0.5);
-      this.add(seedText);
-    }
+  displaySeed(seed?: string) {
+    if (!seed) return;
+
+    const seedText = this.scene.add.text(this.scene.scale.width - 8, 18, `Seed: ${seed}`, {
+      fontSize: "16px",
+      fontFamily: DEFAULT_FONT,
+    });
+    seedText.setOrigin(1, 0.5);
+    this.add(seedText);
+
+    seedText.setInteractive();
+    seedText.on("pointerdown", () => {
+      copyText(seed);
+    });
   }
 }
