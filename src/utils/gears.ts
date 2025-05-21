@@ -11,7 +11,13 @@ export interface GearModel extends GearCircle {
   type: GearType;
 }
 
-export type GearType = "p-1" | "p-2" | "p-3" | "p-4";
+export const GEAR_TYPE = {
+  P_1: "p-1",
+  P_2: "p-2",
+  P_3: "p-3",
+  P_4: "p-4",
+} as const
+export type GearType = (typeof GEAR_TYPE)[keyof typeof GEAR_TYPE]
 
 const GEAR_ANGLE_UNIT = 45;
 

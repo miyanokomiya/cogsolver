@@ -23,6 +23,7 @@ export class LevelBase extends Phaser.Events.EventEmitter {
   protected soundGearAdd: Phaser.Sound.BaseSound;
   protected soundGearRemove: Phaser.Sound.BaseSound;
   protected soundLevelClear: Phaser.Sound.BaseSound;
+  protected seed = "";
 
   constructor(protected scene: Phaser.Scene) {
     super();
@@ -104,12 +105,6 @@ export class LevelBase extends Phaser.Events.EventEmitter {
     this.background.tilePositionX = this.scene.cameras.main.scrollX;
     this.background.tilePositionY = this.scene.cameras.main.scrollY;
 
-    if (this.inputComponent.pressedKeys.left) {
-    }
-    if (this.inputComponent.pressedKeys.right) {
-    }
-    if (this.inputComponent.justPressedKeys.space) {
-    }
     if (this.inputComponent.justPressedKeys.esc) {
       if (import.meta.env.MODE === "development") {
         console.log(JSON.parse(JSON.stringify(this.gearMapComponent.freeGears)));
