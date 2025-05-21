@@ -39,7 +39,7 @@ export class LevelPauseScene extends Phaser.Scene {
     });
     buttons.push(resumeButton);
 
-    const newSeedButton = this.config.seed ? new MenuButton(this, "Roll", "primary") : undefined;
+    const newSeedButton = this.config.seed ? new MenuButton(this, "Reroll", "primary") : undefined;
     if (newSeedButton) {
       newSeedButton.on("pointerdown", () => {
         const config = { grade: this.config.grade, index: this.config.index, seed: getRandomSeed() };

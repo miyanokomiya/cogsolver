@@ -18,6 +18,7 @@ export class ScrollableCameraComponent {
 
   private zoomInButton?: Phaser.GameObjects.Container;
   private zoomOutButton?: Phaser.GameObjects.Container;
+  private zoomLabel?: Phaser.GameObjects.Text;
 
   private overlay!: Phaser.GameObjects.Zone;
 
@@ -32,7 +33,7 @@ export class ScrollableCameraComponent {
       this.scene.scale.width / 2,
       this.scene.scale.height / 2,
       this.scene.scale.width,
-      this.scene.scale.height,
+      this.scene.scale.height
     );
     this.overlay.setScrollFactor(0);
     this.overlay.setInteractive();
@@ -82,8 +83,8 @@ export class ScrollableCameraComponent {
     if (this.isDragging) {
       const dx = (pointer.x - this.startPointerX) / this.camera.zoom;
       const dy = (pointer.y - this.startPointerY) / this.camera.zoom;
-      let newX = this.startScrollX - dx;
-      let newY = this.startScrollY - dy;
+      const newX = this.startScrollX - dx;
+      const newY = this.startScrollY - dy;
       const clamped = this.clampScroll(newX, newY);
       this.camera.scrollX = clamped.x;
       this.camera.scrollY = clamped.y;
@@ -96,6 +97,7 @@ export class ScrollableCameraComponent {
   public zoomIn(factor: number = ZOOM_STEP) {
     this.camera.setZoom(this.camera.zoom * factor);
     this.overlay.setScale(1 / this.camera.zoom);
+    this.updateZoomLabel();
   }
 
   /**
@@ -104,6 +106,7 @@ export class ScrollableCameraComponent {
   public zoomOut(factor: number = ZOOM_STEP) {
     this.camera.setZoom(this.camera.zoom / factor);
     this.overlay.setScale(1 / this.camera.zoom);
+    this.updateZoomLabel();
   }
 
   /**
@@ -114,7 +117,7 @@ export class ScrollableCameraComponent {
     x: number,
     y: number,
     label: string,
-    onClick: () => void,
+    onClick: () => void
   ): Phaser.GameObjects.Container {
     const width = 48;
     const height = 48;
@@ -146,7 +149,7 @@ export class ScrollableCameraComponent {
       padding + buttonSize / 2,
       sceneHeight - buttonSize / 2 - padding,
       "+",
-      () => this.zoomIn(),
+      () => this.zoomIn()
     );
 
     // Zoom Out Button
@@ -155,7 +158,25 @@ export class ScrollableCameraComponent {
       padding + this.zoomInButton.x + buttonSize,
       this.zoomInButton.y,
       "-",
-      () => this.zoomOut(),
+      () => this.zoomOut()
     );
+
+    this.zoomLabel = scene.add
+      .text(
+        this.zoomOutButton.x + this.zoomOutButton.width / 2 + padding,
+        sceneHeight - padding,
+        `${Math.round(this.camera.zoom * 100)}%`,
+        {
+          fontSize: 18,
+          fontFamily: DEFAULT_FONT,
+        }
+      )
+      .setOrigin(0, 1);
+  }
+
+  private updateZoomLabel() {
+    if (!this.zoomLabel) return;
+
+    this.zoomLabel.text = `${Math.round(this.camera.zoom * 100)}%`;
   }
 }
