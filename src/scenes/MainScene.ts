@@ -8,7 +8,7 @@ import impact_1 from "../assets/sounds/impact_1.mp3";
 import crunch_1 from "../assets/sounds/crunch_1.mp3";
 import tone_1 from "../assets/sounds/tone_1.mp3";
 import coin_3 from "../assets/sounds/coin_3.mp3";
-import { MainHUDScene } from "./MainHUDScene";
+import {getSeedInputOrRandom} from "../utils/inputs";
 
 export class MainScene extends Phaser.Scene {
   private level?: LevelBase;
@@ -27,8 +27,14 @@ export class MainScene extends Phaser.Scene {
   }
 
   init(config: LevelSceneConfig) {
-    console.log("MainScene.ts");
-    this.config = config;
+    const levelInfo = getLevel(config.grade, config.index)!;
+    this.config = { ...config, ...levelInfo };
+
+    if (levelInfo.rng) {
+      this.config.seed = getSeedInputOrRandom();
+    }
+
+
     this.level = undefined;
     this.scene.launch("MAIN_HUD", this.config);
   }
@@ -43,19 +49,19 @@ export class MainScene extends Phaser.Scene {
       level.create();
       level.on("level-clear", () => {
         getGlobalStorageComponent().updateLevelProgress({ ...this.config, version: levelInfo.version }, 1);
-        this.scene.pause().launch("LEVEL_END", { grade: this.config.grade, index: this.config.index, cleared: true });
+        this.scene.pause().launch("LEVEL_END", { ...this.config, cleared: true });
       });
       level.on("level-fail", () => {
         this.scene
           .pause()
           .pause("MAIN_HUD")
-          .launch("LEVEL_END", { grade: this.config.grade, index: this.config.index });
+          .launch("LEVEL_END", { ...this.config });
       });
       level.on("level-pause", () => {
         this.scene
           .pause()
           .pause("MAIN_HUD")
-          .launch("LEVEL_PAUSE", { grade: this.config.grade, index: this.config.index });
+          .launch("LEVEL_PAUSE", { ...this.config });
       });
       this.events.on("resume", () => {
         this.scene.resume("MAIN_HUD");
@@ -63,9 +69,6 @@ export class MainScene extends Phaser.Scene {
       this.events.on("shutdown", () => {
         this.scene.stop("MAIN_HUD");
       });
-
-      const hudScene = this.scene.get("MAIN_HUD") as MainHUDScene;
-      hudScene.seed = level.seed;
     });
   }
 

@@ -1,5 +1,6 @@
 import { InputComponent } from "../components/InputComponent";
 import { getLevel, LevelSceneConfig } from "../levels";
+import { getRandomSeed } from "../utils/inputs";
 import { DEFAULT_FONT } from "../utils/settings";
 import { MenuButton } from "../widgets/MenuButton";
 
@@ -35,11 +36,39 @@ export class LevelEndScene extends Phaser.Scene {
     const buttons: MenuButton[] = [];
 
     const nextButton = this.config.cleared && nextLevel ? new MenuButton(this, "Next", "primary") : undefined;
-    if (nextButton) buttons.push(nextButton);
+    if (nextButton) {
+      nextButton.on("pointerdown", () => {
+        const config = { grade: this.config.grade, index: this.config.index + 1 };
+        this.scene.start("MAIN", config);
+      });
+      buttons.push(nextButton);
+    }
+
+    const newSeedButton = this.config.seed ? new MenuButton(this, "Roll", "primary") : undefined;
+    if (newSeedButton) {
+      newSeedButton.on("pointerdown", () => {
+        const config = { grade: this.config.grade, index: this.config.index, seed: getRandomSeed() };
+        this.scene.start("MAIN", config);
+      });
+      buttons.push(newSeedButton);
+    }
 
     const resumeButton = new MenuButton(this, "Resume");
+    resumeButton.on("pointerdown", () => {
+      this.scene.stop().resume("MAIN");
+    });
+
     const retryButton = new MenuButton(this, "Retry");
+    retryButton.on("pointerdown", () => {
+      const config = { grade: this.config.grade, index: this.config.index };
+      this.scene.start("MAIN", config);
+    });
+
     const menuButton = new MenuButton(this, "Menu");
+    menuButton.on("pointerdown", () => {
+      this.scene.stop("MAIN").start("LEVEL_SELECT", { grade: this.config.grade, index: this.config.index });
+    });
+
     buttons.push(resumeButton, retryButton, menuButton);
 
     buttons.forEach((button, i) => {
@@ -49,19 +78,6 @@ export class LevelEndScene extends Phaser.Scene {
       } else {
         Phaser.Display.Align.In.BottomCenter(button, buttons[i - 1], 0, button.height + 14);
       }
-      button.on("pointerdown", () => {
-        if (button === nextButton) {
-          const config = { grade: this.config.grade, index: this.config.index + 1 };
-          this.scene.start("MAIN", config);
-        } else if (button === resumeButton) {
-          this.scene.stop().resume("MAIN");
-        } else if (button === retryButton) {
-          const config = { grade: this.config.grade, index: this.config.index };
-          this.scene.start("MAIN", config);
-        } else if (button === menuButton) {
-          this.scene.stop("MAIN").start("LEVEL_SELECT", { grade: this.config.grade, index: this.config.index });
-        }
-      });
     });
   }
 

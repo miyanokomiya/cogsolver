@@ -1,5 +1,6 @@
 import { InputComponent } from "../components/InputComponent";
 import { LevelSceneConfig } from "../levels";
+import { getRandomSeed } from "../utils/inputs";
 import { DEFAULT_FONT } from "../utils/settings";
 import { MenuButton } from "../widgets/MenuButton";
 
@@ -32,10 +33,33 @@ export class LevelPauseScene extends Phaser.Scene {
 
     const buttons: MenuButton[] = [];
 
-    const nextButton = new MenuButton(this, "Resume", "primary");
+    const resumeButton = new MenuButton(this, "Resume", "primary");
+    resumeButton.on("pointerdown", () => {
+      this.resumeGame();
+    });
+    buttons.push(resumeButton);
+
+    const newSeedButton = this.config.seed ? new MenuButton(this, "Roll", "primary") : undefined;
+    if (newSeedButton) {
+      newSeedButton.on("pointerdown", () => {
+        const config = { grade: this.config.grade, index: this.config.index, seed: getRandomSeed() };
+        this.scene.start("MAIN", config);
+      });
+      buttons.push(newSeedButton);
+    }
+
     const retryButton = new MenuButton(this, "Retry");
+    retryButton.on("pointerdown", () => {
+      const config = { grade: this.config.grade, index: this.config.index };
+      this.scene.start("MAIN", config);
+    });
+    buttons.push(retryButton);
+
     const menuButton = new MenuButton(this, "Menu");
-    buttons.push(nextButton, retryButton, menuButton);
+    menuButton.on("pointerdown", () => {
+      this.scene.stop("MAIN").start("LEVEL_SELECT", { grade: this.config.grade, index: this.config.index });
+    });
+    buttons.push(menuButton);
 
     buttons.forEach((button, i) => {
       if (i === 0) {
@@ -44,22 +68,11 @@ export class LevelPauseScene extends Phaser.Scene {
       } else {
         Phaser.Display.Align.In.BottomCenter(button, buttons[i - 1], 0, button.height + 14);
       }
-      button.on("pointerdown", () => {
-        if (button === nextButton) {
-          this.resumeGame();
-        } else if (button === retryButton) {
-          const config = { grade: this.config.grade, index: this.config.index };
-          this.scene.start("MAIN", config);
-        } else if (button === menuButton) {
-          this.scene.stop("MAIN").start("LEVEL_SELECT", { grade: this.config.grade, index: this.config.index });
-        }
-      });
     });
   }
 
   private resumeGame() {
-    this.scene.stop();
-    this.scene.resume("MAIN");
+    this.scene.stop().resume("MAIN");
   }
 
   update(_time: number, _delta: number): void {

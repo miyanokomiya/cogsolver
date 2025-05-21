@@ -55,7 +55,6 @@ export class LevelBase extends Phaser.Events.EventEmitter {
   }
 
   create() {
-    console.log("LevelBase.ts");
     const hudScene = this.scene.scene.get("MAIN_HUD") as MainHUDScene;
     this.inputComponent = new InputComponent(this.scene);
     this.vkc = new VirtualKeyboardComponent(hudScene, this.inputComponent);
@@ -173,10 +172,10 @@ export class LevelBase extends Phaser.Events.EventEmitter {
       this.gearGroup.remove(gear, true, true);
     });
 
-    goalGearMap.forEach((model) => {
+    goalGearMap.values().forEach((model, i) => {
       const gear = new Gear(this.scene, model);
       gear.setPosition(model.x, model.y);
-      gear.setGearColor(0x00ff55);
+      gear.setGearColor(i === 0 ? 0x00ffcc : 0x00ff55);
       this.gearGroup.add(gear);
     });
     freeGearMap.forEach((model) => {

@@ -32,7 +32,7 @@ export class LevelGeneratorComponent {
       if (!this.generateStep()) break;
     }
 
-    this.centralizeGears(this.cleardGearMapComponent.freeGears);
+    this.centralizeGears(this.cleardGearMapComponent.freeGears, this.cleardGearMapComponent.freeGears[0]);
 
     const internalGears = this.cleardGearMapComponent.freeGears.slice(1, -1);
     const shuffledInternalGears = this.rng.shuffle(internalGears);
@@ -95,9 +95,9 @@ export class LevelGeneratorComponent {
     return { ...nextGearCircle, type: nextGearType, id: this.rng.uuid() };
   }
 
-  private centralizeGears(gearModels: GearModel[]) {
-    const cx = gearModels.reduce((v, m) => v + m.x, 0) / gearModels.length;
-    const cy = gearModels.reduce((v, m) => v + m.y, 0) / gearModels.length;
+  private centralizeGears(gearModels: GearModel[], center: GearModel) {
+    const cx = center.x;
+    const cy = center.y;
     const dx = 400 - cx;
     const dy = 300 - cy;
     gearModels.forEach((m) => {

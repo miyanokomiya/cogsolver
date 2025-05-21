@@ -1,7 +1,15 @@
+const SEED_LENGTH = 16;
+
 export function getSeedInputOrRandom(): string {
   const input = document.getElementById("input-seed")! as HTMLInputElement;
-  if (input.value) return input.value;
-  return generateString(10);
+  if (input.value) return input.value.slice(0, SEED_LENGTH);
+  return generateString(SEED_LENGTH);
+}
+
+export function getRandomSeed(): string {
+  const seed = generateString(SEED_LENGTH);
+  putSeedText(seed);
+  return seed;
 }
 
 const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -16,10 +24,14 @@ function generateString(length: number) {
   return result;
 }
 
-export function copyText(text: string) {
+export function putSeedText(text: string) {
+  const input = document.getElementById("input-seed")! as HTMLInputElement;
+  input.value = text;
+}
+
+export function copySeedText(text: string) {
   const input = document.getElementById("input-seed")! as HTMLInputElement;
   input.value = text;
   input.select();
   document.execCommand("copy");
-  console.log(text);
 }

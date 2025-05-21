@@ -9,12 +9,13 @@ export const LEVEL_GRADE = {
 } as const;
 export type LevelGrade = keyof typeof LEVEL_GRADE;
 
-export type LevelSceneConfig = { grade: LevelGrade; index: number };
+export type LevelSceneConfig = { grade: LevelGrade; index: number; seed?: string };
 
 export type Level = {
   grade: (typeof LEVEL_GRADE)[LevelGrade];
   LevelClass: any;
   version: number;
+  rng?: boolean;
 };
 
 export type LevelInfo = {
@@ -26,7 +27,7 @@ export const LEVEL_LIST: Level[] = [
   { grade: LEVEL_GRADE.INTRODUCTION, LevelClass: Intro_01, version: 1 },
   { grade: LEVEL_GRADE.INTRODUCTION, LevelClass: Intro_02, version: 1 },
   { grade: LEVEL_GRADE.INTRODUCTION, LevelClass: Intro_03, version: 1 },
-  { grade: LEVEL_GRADE.INTRODUCTION, LevelClass: Intro_rng, version: 1 },
+  { grade: LEVEL_GRADE.INTRODUCTION, LevelClass: Intro_rng, version: 1, rng: true },
 ];
 
 export function getNextLevel(current: Level): Level | undefined {

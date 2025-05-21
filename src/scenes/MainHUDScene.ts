@@ -1,11 +1,10 @@
 import Phaser from "phaser";
 import { LevelSceneConfig } from "../levels";
 import { LevelHUD } from "../widgets/LevelHUD";
+import { putSeedText } from "../utils/inputs";
 
 export class MainHUDScene extends Phaser.Scene {
   private config!: LevelSceneConfig;
-  private levelHUD!: LevelHUD;
-  public seed = "";
 
   constructor() {
     super({ key: "MAIN_HUD" });
@@ -16,10 +15,9 @@ export class MainHUDScene extends Phaser.Scene {
   }
 
   create() {
-    console.log("MainHUDScene.ts");
-    this.levelHUD = new LevelHUD(this, this.config).setDepth(10);
-    if (this.seed) {
-      this.levelHUD.displaySeed(this.seed);
+    new LevelHUD(this, this.config).setDepth(10);
+    if (this.config.seed) {
+      putSeedText(this.config.seed);
     }
   }
 }
