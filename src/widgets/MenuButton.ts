@@ -29,14 +29,7 @@ export class MenuButton extends Phaser.GameObjects.Container implements Selectab
     this.add(label);
 
     this.setSize(WIDTH, HEIGHT);
-
     this.setInteractive();
-    this.on("pointermove", () => {
-      this.setFocused(true);
-    });
-    this.on("pointerout", () => {
-      this.setFocused(false);
-    });
   }
 
   setFocused(focused: boolean) {

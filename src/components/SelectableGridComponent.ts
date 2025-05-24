@@ -1,6 +1,6 @@
 import { InputComponent } from "./InputComponent";
 
-export interface SelectableObject {
+export interface SelectableObject extends Phaser.GameObjects.GameObject {
   setFocused(focused: boolean): void;
 }
 
@@ -15,6 +15,7 @@ export class SelectableGridComponent<T extends SelectableObject = SelectableObje
   clear() {
     this.itemGrid.forEach((row) => {
       row.forEach((item) => {
+        item.off("pointermove", this.hoverItem);
         item.setFocused(false);
       });
     });
@@ -24,6 +25,9 @@ export class SelectableGridComponent<T extends SelectableObject = SelectableObje
 
   addLine(items: T[]) {
     this.itemGrid.push(items);
+    items.forEach((item) => {
+      item.on("pointermove", this.hoverItem.bind(this, item));
+    });
   }
 
   update() {
@@ -73,5 +77,22 @@ export class SelectableGridComponent<T extends SelectableObject = SelectableObje
 
   getFocusedButton(): T | undefined {
     return this.itemGrid[this.focused.y]?.[this.focused.x];
+  }
+
+  private hoverItem(target: T) {
+    let x = -1;
+    let y = -1;
+    this.itemGrid.some((line, i) => {
+      return line.some((item, j) => {
+        if (item === target) {
+          x = j;
+          y = i;
+          return true;
+        }
+      });
+    });
+    if (x === -1 || y === -1) return;
+
+    this.focusItem(x, y);
   }
 }

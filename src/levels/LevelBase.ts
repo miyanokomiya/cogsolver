@@ -3,7 +3,7 @@ import { InputComponent } from "../components/InputComponent";
 import { ScrollableCameraComponent } from "../components/ScrollableCameraComponent";
 import { VirtualKeyboardComponent } from "../components/VirtualKeyboardComponent";
 import { Gear } from "../pawns/Gear";
-import {MainHUDScene} from "../scenes/MainHUDScene";
+import { MainHUDScene } from "../scenes/MainHUDScene";
 import { createGearModel, GearModel } from "../utils/gears";
 import { AvailableGearMarker } from "../widgets/AvailableGearMarker";
 import { GearPool } from "../widgets/GearPool";
@@ -69,6 +69,7 @@ export class LevelBase extends Phaser.Events.EventEmitter {
     this.scrollableCameraComponent = new ScrollableCameraComponent(this.scene, this.scene.cameras.main);
     this.scrollableCameraComponent.setScrollBounds(...cameraBounds);
     this.scrollableCameraComponent.createUI(hudScene);
+    this.zoomToGears();
 
     this.background = this.scene.add
       .tileSprite(
@@ -76,7 +77,7 @@ export class LevelBase extends Phaser.Events.EventEmitter {
         this.scene.scale.height / 2,
         cameraBounds[2] - cameraBounds[0],
         cameraBounds[3] - cameraBounds[1],
-        "rect_tile",
+        "rect_tile"
       )
       .setAlpha(0.1)
       .setScrollFactor(0);
@@ -230,5 +231,18 @@ export class LevelBase extends Phaser.Events.EventEmitter {
     this.nextGearModel = model;
     this.gearPool.setSelectedType(model?.type);
     this.updateAvailableGearInfos();
+  }
+
+  private zoomToGears() {
+    const bounds = this.gearMapComponent.getGoalBounds();
+    const cx = (bounds[2] + bounds[0]) / 2;
+    const cy = (bounds[3] + bounds[1]) / 2;
+    const viewport = this.scene.scale;
+    this.scrollableCameraComponent.scrollTo(cx - viewport.width / 2, cy - viewport.height / 2);
+
+    const boundsSize = Math.max(bounds[2] - bounds[0], bounds[3] - bounds[1]);
+    const viewportSize = Math.min(viewport.width, viewport.height);
+    const rate = Math.min(1, viewportSize / boundsSize);
+    this.scrollableCameraComponent.setZoom(rate);
   }
 }

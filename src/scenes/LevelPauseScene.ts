@@ -1,4 +1,5 @@
 import { InputComponent } from "../components/InputComponent";
+import { SelectableGridComponent } from "../components/SelectableGridComponent";
 import { LevelSceneConfig } from "../levels";
 import { getRandomSeed } from "../utils/inputs";
 import { DEFAULT_FONT } from "../utils/settings";
@@ -9,6 +10,7 @@ type Config = LevelSceneConfig;
 export class LevelPauseScene extends Phaser.Scene {
   private config!: Config;
   protected inputComponent!: InputComponent;
+  private selectableGridComponent!: SelectableGridComponent;
 
   constructor() {
     super({ key: "LEVEL_PAUSE" });
@@ -20,6 +22,7 @@ export class LevelPauseScene extends Phaser.Scene {
 
   create() {
     this.inputComponent = new InputComponent(this);
+    this.selectableGridComponent = new SelectableGridComponent(this.inputComponent);
 
     this.add.graphics().fillStyle(0x000000, 0.3).fillRect(0, 0, this.scale.width, this.scale.height);
 
@@ -62,6 +65,7 @@ export class LevelPauseScene extends Phaser.Scene {
     buttons.push(menuButton);
 
     buttons.forEach((button, i) => {
+      this.selectableGridComponent.addLine([button]);
       if (i === 0) {
         button.x = this.scale.width / 2;
         button.y = this.scale.height / 2;
@@ -77,6 +81,7 @@ export class LevelPauseScene extends Phaser.Scene {
 
   update(_time: number, _delta: number): void {
     this.inputComponent.update();
+    this.selectableGridComponent.update();
 
     if (this.inputComponent.justPressedKeys.esc) {
       this.resumeGame();

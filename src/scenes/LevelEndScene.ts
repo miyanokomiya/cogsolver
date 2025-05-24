@@ -1,4 +1,5 @@
 import { InputComponent } from "../components/InputComponent";
+import { SelectableGridComponent } from "../components/SelectableGridComponent";
 import { getLevel, LevelSceneConfig } from "../levels";
 import { getRandomSeed } from "../utils/inputs";
 import { DEFAULT_FONT } from "../utils/settings";
@@ -9,6 +10,7 @@ type Config = LevelSceneConfig & { cleared: boolean };
 export class LevelEndScene extends Phaser.Scene {
   private config!: Config;
   protected inputComponent!: InputComponent;
+  private selectableGridComponent!: SelectableGridComponent;
 
   constructor() {
     super({ key: "LEVEL_END" });
@@ -20,6 +22,7 @@ export class LevelEndScene extends Phaser.Scene {
 
   create() {
     this.inputComponent = new InputComponent(this);
+    this.selectableGridComponent = new SelectableGridComponent(this.inputComponent);
 
     const nextLevel = getLevel(this.config.grade, this.config.index + 1);
 
@@ -72,6 +75,7 @@ export class LevelEndScene extends Phaser.Scene {
     buttons.push(resumeButton, retryButton, menuButton);
 
     buttons.forEach((button, i) => {
+      this.selectableGridComponent.addLine([button]);
       if (i === 0) {
         button.x = this.scale.width / 2;
         button.y = this.scale.height / 2;
@@ -83,5 +87,6 @@ export class LevelEndScene extends Phaser.Scene {
 
   update(_time: number, _delta: number): void {
     this.inputComponent.update();
+    this.selectableGridComponent.update();
   }
 }

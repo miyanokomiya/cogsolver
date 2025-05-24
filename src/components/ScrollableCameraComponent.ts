@@ -91,6 +91,12 @@ export class ScrollableCameraComponent {
     }
   }
 
+  public scrollTo(x: number, y: number) {
+    const clamped = this.clampScroll(x, y);
+    this.camera.scrollX = clamped.x;
+    this.camera.scrollY = clamped.y;
+  }
+
   /**
    * Zoom in the camera by a given factor (default: 1.1).
    */
@@ -105,6 +111,13 @@ export class ScrollableCameraComponent {
    */
   public zoomOut(factor: number = ZOOM_STEP) {
     this.camera.setZoom(this.camera.zoom / factor);
+    this.overlay.setScale(1 / this.camera.zoom);
+    this.updateZoomLabel();
+  }
+
+  public setZoom(zoom: number) {
+    const pow = Math.round(Math.log(zoom) / Math.log(ZOOM_STEP));
+    this.camera.setZoom(ZOOM_STEP ** pow);
     this.overlay.setScale(1 / this.camera.zoom);
     this.updateZoomLabel();
   }

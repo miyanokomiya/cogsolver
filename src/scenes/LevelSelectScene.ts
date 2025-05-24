@@ -4,14 +4,16 @@ import gear2 from "../assets/images/gear2.svg";
 import gear3 from "../assets/images/gear3.svg";
 import gear4 from "../assets/images/gear4.svg";
 import { LEVEL_GRADE, LEVEL_LIST, LevelSceneConfig } from "../levels";
-import { LevelSelectButton } from "../widgets/LevelSelectButton";
+import { LevelRngSelectButton, LevelSelectButton } from "../widgets/LevelSelectButton";
 import { DEFAULT_FONT } from "../utils/settings";
 import { getGlobalStorageComponent } from "../components/GlobalStorageComponent";
 import { Background2 } from "../pawns/Background";
 import { SelectableGridComponent } from "../components/SelectableGridComponent";
+import {InputComponent} from "../components/InputComponent";
 
 export class LevelSelectScene extends Phaser.Scene {
   private config: LevelSceneConfig = { grade: LEVEL_GRADE.INTRODUCTION, index: 0 };
+  protected inputComponent!: InputComponent;
   private selectableGridComponent!: SelectableGridComponent;
 
   constructor() {
@@ -32,7 +34,8 @@ export class LevelSelectScene extends Phaser.Scene {
 
   create() {
     const globalStore = getGlobalStorageComponent();
-    this.selectableGridComponent = new SelectableGridComponent();
+    this.inputComponent = new InputComponent(this);
+    this.selectableGridComponent = new SelectableGridComponent(this.inputComponent);
 
     new Background2(this);
 
@@ -55,24 +58,27 @@ export class LevelSelectScene extends Phaser.Scene {
         color: "#000000",
       });
 
+      let buttonX = label.x;
       const buttons = list.map((level, levelIndex) => {
         const progress = globalStore.getLevelProgress({
           grade: level.grade,
           index: levelIndex,
           version: level.version,
         });
-        const button = new LevelSelectButton(
+        const button = new (level.rng ? LevelRngSelectButton : LevelSelectButton)(
           this,
-          label.x + 20 + levelIndex * 50,
+          0,
           label.y + 60,
           level.grade,
           levelIndex,
-          !!progress,
+          !!progress
         );
         button.on("pointerdown", () => {
           const config = { grade: button.levelGrade, index: button.levelIndex };
           this.scene.start("MAIN", config);
         });
+        button.x = buttonX + button.width / 2;
+        buttonX += button.width + 10;
         return button;
       });
       this.selectableGridComponent.addLine(buttons);
@@ -87,12 +93,13 @@ export class LevelSelectScene extends Phaser.Scene {
           fontSize: "20px",
           fontFamily: DEFAULT_FONT,
           color: "#000000",
-        },
+        }
       )
       .setOrigin(0, 1);
   }
 
   update(): void {
+    this.inputComponent.update();
     this.selectableGridComponent.update();
   }
 }
