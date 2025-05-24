@@ -2,11 +2,11 @@ import { LevelGeneratorComponent } from "../../components/LevelGeneratorComponen
 import { getSeedInputOrRandom } from "../../utils/inputs";
 import { LevelBase } from "../LevelBase";
 
-export class Intro_rng extends LevelBase {
+export class Expert_rng_1 extends LevelBase {
   seed = getSeedInputOrRandom();
 
   protected setupLevel() {
-    const levelGenerator = new LevelGeneratorComponent(this.seed, ["p-2"], [4, 5], 0);
+    const levelGenerator = new LevelGeneratorComponent(this.seed, ["p-2", "p-3", "p-4"], [10, 14], 10);
     const gearMap = levelGenerator.generateGearMap();
 
     this.gearMapComponent.setGoalGears(gearMap.goalGears);

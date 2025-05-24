@@ -18,11 +18,11 @@ export class LevelGeneratorComponent {
   constructor(
     public readonly seed: string,
     private availableGearTypes = Object.values(GEAR_TYPE),
-    maxUsedCount = 10,
+    usedCountRange: [min: number, max: number] = [4, 10],
     maxExCount = 0
   ) {
     this.rng = new Phaser.Math.RandomDataGenerator([seed]);
-    this.gearMaxCount = this.rng.between(4, maxUsedCount);
+    this.gearMaxCount = this.rng.between(usedCountRange[0], usedCountRange[1]);
     this.gearExCount = this.rng.between(0, maxExCount);
   }
 
@@ -36,7 +36,7 @@ export class LevelGeneratorComponent {
 
     const internalGears = this.cleardGearMapComponent.freeGears.slice(1, -1);
     const shuffledInternalGears = this.rng.shuffle(internalGears);
-    const goalCount = this.rng.between(0, Math.max(0, Math.round(shuffledInternalGears.length / 4)));
+    const goalCount = this.rng.between(0, Math.max(0, Math.round(shuffledInternalGears.length / 6)));
     const goalGears = [
       this.cleardGearMapComponent.freeGears[0],
       ...shuffledInternalGears.slice(0, goalCount),

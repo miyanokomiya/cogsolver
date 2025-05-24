@@ -41,13 +41,13 @@ export class LevelSelectScene extends Phaser.Scene {
 
     const lineX = 100;
 
-    this.add.text(lineX, 62, "Cogsolver", {
+    this.add.text(lineX, 50, "Cogsolver", {
       fontSize: "70px",
       fontFamily: DEFAULT_FONT,
       color: "#000000",
     });
 
-    const lineY = 180;
+    const lineY = 160;
 
     const lineHeight = 100;
     const grouped = Object.entries(Object.groupBy(LEVEL_LIST, (level) => level.grade));
@@ -87,10 +87,10 @@ export class LevelSelectScene extends Phaser.Scene {
     this.add
       .text(
         lineX,
-        this.scale.height - 40,
+        this.scale.height - 10,
         `Move & Action: Mouse, Touch\nSwitch Gears: Wheel\nPause: Escape\n\n${process.env.__APP_VERSION__}`,
         {
-          fontSize: "20px",
+          fontSize: "18px",
           fontFamily: DEFAULT_FONT,
           color: "#000000",
         }
